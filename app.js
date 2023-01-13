@@ -1,40 +1,61 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const {Client, Collection, Events, GatewayIntentBits} = require('discord.js');
+const {Client, Collection, Events, GatewayIntentBits, IntentsBitField} = require('discord.js');
+const {Player} = require("discord-player");
+const {iterateDepth} = require('./fileutil.js')
+
 require('dotenv').config();
-
 const {TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId} = process.env;
-
 require('./plugins/giphy').setKey(process.env.GIPHY_API_KEY)
 require('./plugins/tenor').setup(process.env.TENOR_API)
 
-// Create a new client instance
-const client = new Client({intents: [GatewayIntentBits.Guilds]});
+/** PARSE CL ARGUMENTS */
+console.log(process.argv)
+const stayOffline = process.argv.includes("--offline")
+const deployCommands = process.argv.includes("--deploy")
+
+
+/** CREATE CLIENT INSTANCE */
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages
+    ]
+});
+
+
+/** REGISTER COMMANDS */
 client.commands = new Collection();
+iterateDepth(path.join(__dirname, 'commands'), (filePath) => {
+    if (!filePath.endsWith('.js')) return;
 
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
     const command = require(filePath);
-    // Set a new item in the Collection with the key as the command name and the value as the exported module
     if ('data' in command && 'execute' in command) {
+        console.log(`[INFO] Add ${command.data.name}`)
         client.commands.set(command.data.name, command);
     } else {
         console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
     }
-}
+})
 
+
+/** SETUP MUSIC PLAYER */
+const music = require('./services/music')
+music.config(client);
+
+
+/** OnReady */
 // When the client is ready, run this code (only once)
-// We use 'c' for the event parameter to keep it separate from the already defined 'client'
 client.once(Events.ClientReady, c => {
+    const {deploy} = require('./deploy-commands')
+    if (deployCommands) {
+        deploy(client.commands.map(c => c.data.toJSON())).then(r => "Deploy completed")
+    }
     console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
-// Log in to Discord with your client's token
-client.login(token);
-
+/** OnInteraction */
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
@@ -52,3 +73,10 @@ client.on(Events.InteractionCreate, async interaction => {
         await interaction.reply({content: 'There was an error while executing this command!', ephemeral: true});
     }
 });
+
+if (stayOffline) {
+    return;
+}
+
+/** Login/Run */
+client.login(token);

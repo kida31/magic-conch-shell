@@ -1,4 +1,4 @@
-const {GifMessageBuilder} = require('../command-templates/slapkisshug')
+const {GifMessageBuilder} = require('../../command-templates/slapkisshug')
 
 module.exports = new GifMessageBuilder()
     .setName('kiss')
