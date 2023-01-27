@@ -1,0 +1,6 @@
+{
+    "importMap": "./importMap.json",
+    "tasks": {
+        "dev": "deno run -A --watch app.ts"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "imports": {
+        "@discordjs/opus": "npm:@discordjs/opus",
+        "@discordjs/voice": "npm:@discordjs/voice",
+        "discord-player": "npm:discord-player",
+        "discord.js": "npm:discord.js",
+        "dotenv": "npm:dotenv",
+        "ffmpeg-static": "npm:ffmpeg-static",
+        "node-fetch": "npm:node-fetch",
+        "pino": "npm:pino",
+        "undici": "npm:undici"
+    }
+}

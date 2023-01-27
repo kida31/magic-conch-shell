@@ -8,7 +8,8 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "full": "node app.js --deploy",
-    "offline": "nodemon app.js --offline"
+    "offline": "nodemon app.js --nologin",
+    "deploy": "node app.js --deploy --nologin"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "dotenv": "^16.0.3",
     "ffmpeg-static": "^5.1.0",
     "node-fetch": "^3.3.0",
+    "pino": "^7.0.0-rc.9",
     "undici": "^5.14.0"
   },
   "devDependencies": {

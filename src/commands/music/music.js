@@ -1,0 +1,92 @@
+import {QueryType} from "discord-player";
+
+import {EmbedBuilder, SlashCommandBuilder} from "discord.js";
+
+import music from "../../services/music";
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('music')
+        .setDescription('Discord music player')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('search')
+                .setDescription('search a song')
+                .addStringOption(option =>
+                    option
+                        .setName('searchterm')
+                        .setDescription('A query term')
+                        .setRequired(true))
+                .addIntegerOption(option =>
+                    option.setName('count')
+                        .setDescription('How many songs do you want to queue')
+                        .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('play')
+                .setDescription('Play a song from link')
+                .addStringOption(option =>
+                    option
+                        .setName('searchterm')
+                        .setDescription('A query term')))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('playlist')
+                .setDescription('Play a youtube playlist')
+                .addStringOption(option =>
+                    option
+                        .setName('searchterm')
+                        .setDescription('A query term')
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('leave')
+                .setDescription('Tells bot to leave the voice channel')
+        ).addSubcommand(subcommand =>
+            subcommand
+                .setName('queue')
+                .setDescription('Shows queued songs')
+                .addIntegerOption(option =>
+                    option.setName('count')
+                        .setDescription('How many songs you want to queue')
+                        .setMinValue(0)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('skip')
+                .setDescription('Skips to current song')),
+    async execute(interaction) {
+        if (interaction.options.getSubcommand() === "leave") {
+            const queue = await music.getPlayer().getQueue(interaction.guild);
+            if (queue) {
+                await queue.destroy();
+                await interaction.reply("Bye");
+            }
+            return;
+        }
+
+        const channel = interaction.member.voice.channel
+
+        if (!channel) {
+            await interaction.reply({
+                content: "You have to be in a voice channel to use this",
+                ephemeral: true
+            })
+            return;
+        }
+        const player = music.getPlayer();
+
+
+        let queue = await player.getQueue(interaction.guild)
+        if (!queue) {
+            queue = await player.createQueue(interaction.guild, {autoSelfDeaf: false});
+            console.log("Created new queue");
+            await queue.connect(interaction.member.voice.channel)
+            console.log("Connected to channel")
+        }
+
+        await ({
+
+            'queue': showQueue
+        }[interaction.options.getSubcommand()])(player, queue, interaction)
+    },
+};
