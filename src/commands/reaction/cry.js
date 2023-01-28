@@ -1,4 +1,4 @@
-import {GifMessageBuilder} from "../command-templates/slapkisshug";
+import {GifMessageBuilder} from "../command-templates/GifCommandBuilder";
 
 
 module.exports = new GifMessageBuilder()

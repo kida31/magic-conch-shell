@@ -1,20 +1,24 @@
-const { Client, Events, GatewayIntentBits, IntentsBitField, } = await import("discord.js");
-import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
-import { Command } from "./commands/command.ts";
-import { debugLogger as logger } from "./common/logger.ts";
-import { ExtendedPlayer } from "./music/music.ts";
+import { Client, Events, GatewayIntentBits } from "discord.js";
+import { Command } from "./commands/Command";
+import { logger } from "./core/logger";
+import { ExtendedPlayer } from "./music/music";
+import * as dotenv from "dotenv";
+import * as commandIndex from "./commands";
 
 /** ENVIRONMENT VARIABLES */
-const { TOKEN: token } = config();
+dotenv.config();
+const { TOKEN: token } = process.env;
 
 /** PARSE CLI ARGUMENTS */
-const argv = Deno.args;
-const noLogin = argv.includes("--nologin");
+const argv = process.argv;
+const noLogin = argv.includes("--dry");
 const doDeploy = argv.includes("--deploy");
 
 /** COMMANDS */
-import * as cmdIndex from "./commands/index.ts";
-const commands: Map<string, Command> = new Map(Object.entries(cmdIndex));
+const commands: Map<string, Command> = new Map();
+commandIndex.getAll().forEach(c => {
+    commands.set(c.data.name, c)
+});
 
 /** CREATE CLIENT */
 const client = new Client({
@@ -60,11 +64,13 @@ client.on(Events.InteractionCreate, async function handleInteraction(interaction
 
 /** DEPLOY COMMANDS */
 if (doDeploy) {
-    const { deployCommandArray } = await import("./deploy-commands.js");
-    if (doDeploy) {
-        await deployCommandArray(Array.from(commands.values()).map(c => c.data.toJSON()));
-        logger.info("Deployed commands");
-    }
+    (async () => {
+        const { deployCommandArray } = await import("./deploy-commands");
+        if (doDeploy) {
+            deployCommandArray(Array.from(commands.values()).map(c => c.data.toJSON()))
+            await logger.info("Deployed commands");
+        }
+    })()
 }
 
 if (!noLogin) {

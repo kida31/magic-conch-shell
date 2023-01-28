@@ -1,23 +1,24 @@
 import { REST, Routes } from "discord.js";
 import fs from "node:fs";
-import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
+// import * as dotenv from "dotenv";
+// dotenv.config();
 
-const { CLIENT_ID: clientId, GUILD_ID: guildId, TOKEN: token } = config();
+const { CLIENT_ID: clientId, GUILD_ID: guildId, TOKEN: token } = process.env;
 
-async function deployCommandArray(commandList) {
+async function deployCommandArray(jsonData) {
   const rest = new REST({ version: "10" }).setToken(token);
 
   await (async () => {
     try {
       console.log(
-        `Started refreshing ${commandList.length} application (/) commands.`,
+        `Started refreshing ${jsonData.length} application (/) commands.`,
       );
 
       // The put method is used to fully refresh all commands in the guild with the current set
       const data = await rest.put(
         Routes.applicationGuildCommands(clientId, guildId),
         {
-          body: commandList,
+          body: jsonData,
         },
       );
 

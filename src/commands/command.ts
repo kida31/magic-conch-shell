@@ -7,17 +7,22 @@ import {
 
 import { QueryType } from "discord-player";
 
-
-export interface Command {
-  data: SlashCommandBuilder | SlashCommandSubcommandBuilder;
+interface Command {
+  data: SlashCommandBuilder | SlashCommandSubcommandBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
   execute(interaction: ChatInputCommandInteraction<CacheType>): Promise<void>;
 }
 
-function addQueryTypeOption(builder: SlashCommandBuilder, optional: bool = true): any {
-  const querychoices = Object.dkeys(QueryType).filter(k => isNaN(k)).asChoices();
-  const b = builder.addStringOption(option =>
-    option.setName('querytype')
-      .setDescription('discord-player:QueryType')
-      .addChoices(...querychoices));
-  return b;
+export { Command }
+
+export function isCommand(obj: any): obj is Command {
+  return "data" in obj && "execute" in obj;
 }
+
+// function addQueryTypeOption(builder: SlashCommandBuilder, optional: bool = true): any {
+//   const querychoices = Object.keys(QueryType).filter(k => isNaN(k)).asChoices();
+//   const b = builder.addStringOption(option =>
+//     option.setName('querytype')
+//       .setDescription('discord-player:QueryType')
+//       .addChoices(...querychoices));
+//   return b;
+// }

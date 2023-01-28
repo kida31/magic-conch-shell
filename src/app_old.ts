@@ -6,7 +6,7 @@ import * as path from "node:path";
 import logger from "./services/logger";
 
 import { load } from "https:/deno.land/std/dotenv/mod.ts";
-import { Command } from "./commands/command.js";
+import { Command } from "./commands/Command.js";
 // const { TOKEN: token, CLIENT_ID: clientId, GUILD_ID: guildId } = await load();
 const argv = Deno.args;
 

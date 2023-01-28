@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Command } from '../command.ts';
+import { Command } from '../Command.ts';
 import { QueryType } from "discord-player";
 
 const querychoices = Object.keys(QueryType).filter(k => isNaN(k)).asChoices()

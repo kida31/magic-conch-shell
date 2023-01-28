@@ -1,4 +1,4 @@
-import { Command } from "./command.ts";
+import { Command } from "./Command";
 
 import {
     CacheType,
@@ -6,12 +6,12 @@ import {
     SlashCommandBuilder,
 } from "discord.js";
 
-export const ping: Command = {
-    data:
-        new SlashCommandBuilder()
-            .setName("ping")
-            .setDescription("Replies with Pong!"),
+export default {
+    data: new SlashCommandBuilder()
+        .setName("ping")
+        .setDescription("Replies with Pong!"),
+
     async execute(interaction: ChatInputCommandInteraction<CacheType>,) {
         await interaction.reply("Pong!" + interaction.user.toString());
     }
-}
+} as Command;
