@@ -26,7 +26,7 @@ module.exports = {
         const response = await request(URL + paramString);
         const json =  await response.body.json()
         return json.results;
-    }
+    },
 }
 
 function checkSetup() {

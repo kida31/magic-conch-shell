@@ -3,7 +3,7 @@ import { Player } from "discord-player";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import logger from "./services/logger";
+import logger from "./applets/logger";
 
 import { load } from "https:/deno.land/std/dotenv/mod.ts";
 import { Command } from "./commands/Command.js";
@@ -32,7 +32,7 @@ client.once(Events.ClientReady, (c) => logger.info(`Ready! Logged in as ${c.user
 
 /** SETUP MUSIC PLAYER */
 {
-  const { config: musicConfig } = await import("./services/music.js");
+  const { config: musicConfig } = await import("./applets/music.js.js");
   musicConfig(client);
 }
 

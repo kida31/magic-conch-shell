@@ -2,17 +2,34 @@ import {
   CacheType,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
-  SlashCommandSubcommandBuilder
+  SlashCommandSubcommandBuilder,
+  StringSelectMenuInteraction
 } from "discord.js";
 
 import { QueryType } from "discord-player";
 
+type CommandExecution = (interaction: ChatInputCommandInteraction<CacheType>) => Promise<void>
+
+type CommandData = SlashCommandBuilder | SlashCommandSubcommandBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+
 interface Command {
-  data: SlashCommandBuilder | SlashCommandSubcommandBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-  execute(interaction: ChatInputCommandInteraction<CacheType>): Promise<void>;
+  data: CommandData
+  execute: CommandExecution;
 }
 
-export { Command }
+type CommandResolution = (interaction: StringSelectMenuInteraction<CacheType>) => Promise<void>;
+
+interface SelectMenuCommand extends Command {
+  resolve: CommandResolution
+}
+
+export {
+  Command,
+  CommandExecution,
+  CommandData,
+  SelectMenuCommand,
+  CommandResolution
+}
 
 export function isCommand(obj: any): obj is Command {
   return "data" in obj && "execute" in obj;

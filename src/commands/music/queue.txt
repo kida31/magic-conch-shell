@@ -1,9 +1,4 @@
-import {getPlayer} from "../../services/music";
-
-import {EmbedBuilder} from "discord.js";
-
-
-async function main(interaction){
+async function main(interaction) {
     const player = getPlayer()
     const queue = player.getQueue(interaction.guild)
     if (!queue || queue.tracks.length === 0) {

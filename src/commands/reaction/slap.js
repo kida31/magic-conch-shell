@@ -1,7 +1,6 @@
-import {GifMessageBuilder} from "../command-templates/slapkisshug";
+import { GifCommandBuilder } from "../../utils/CommandBuilder/GifCommandBuilder";
 
-
-module.exports = new GifMessageBuilder()
+module.exports = new GifCommandBuilder()
     .setName('slap')
     .setDescription('Slap someone')
     .setGifQuery('anime slap')

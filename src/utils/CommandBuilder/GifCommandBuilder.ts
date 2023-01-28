@@ -1,8 +1,9 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { Command } from "../Command";
-import tenor from "../../common/GIF/tenor";
+import { Command } from "../../commands/Command";
+import { searchGifs } from "../../applets/tenor";
+import { logger } from "../../common/logger";
 
-export class GifMessageBuilder {
+export class GifCommandBuilder {
     name: string
     description: string
     gifQuery: string
@@ -15,13 +16,13 @@ export class GifMessageBuilder {
         this.embedDescription = "";
     }
 
-    setName(name: string): GifMessageBuilder {
+    setName(name: string): GifCommandBuilder {
         this.name = name;
         return this;
     }
 
 
-    setDescription(description: string): GifMessageBuilder {
+    setDescription(description: string): GifCommandBuilder {
         this.description = description;
         return this;
     }
@@ -54,13 +55,14 @@ export class GifMessageBuilder {
                         .setRequired(true)),
             async execute(interaction) {
                 if (CACHE.length === 0) {
-                    const results = await tenor.search({ q: gifQuery, media_filter: "tinygif", limit: "50" });
-                    CACHE = results.map(r => r['media_formats']['tinygif']['url']);
-                    console.log(`Populate Tenor cache for ${name}::${gifQuery}`)
+                    CACHE = await searchGifs({ q: gifQuery, media_filter: "tinygif", limit: "50" });
+                    logger.notice(`Populate Tenor cache for ${name}::${gifQuery}`)
                 }
 
+                // Randomize image result
                 const idx = Math.floor(Math.random() * CACHE.length);
                 const imageUrl = CACHE[idx];
+
                 const target = interaction.options.getUser('target');
                 const embed = new EmbedBuilder()
                     .setImage(imageUrl)

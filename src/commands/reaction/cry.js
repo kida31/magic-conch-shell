@@ -1,7 +1,6 @@
-import {GifMessageBuilder} from "../command-templates/GifCommandBuilder";
+import { GifCommandBuilder } from "../../utils/CommandBuilder/GifCommandBuilder";
 
-
-module.exports = new GifMessageBuilder()
+module.exports = new GifCommandBuilder()
     .setName('cry')
     .setDescription('Cries to someone')
     .setGifQuery('anime cry')

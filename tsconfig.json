@@ -25,7 +25,8 @@
     "src/test.ts"
   ],
   "include": [
-    "./**/*.ts"
+    "./**/*.ts",
+    "src/commands/reaction/hug.js"
   ],
   "exclude": [
     "node_modules",

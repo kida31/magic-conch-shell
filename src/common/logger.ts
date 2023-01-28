@@ -1,7 +1,7 @@
 import { debug } from "console";
 import winston, { createLogger, format, Logger, transports, addColors } from "winston";
 
-const LOG_LEVEL = "debug";
+const LOG_LEVEL = "info";
 
 const customLevels = {
     levels: {
