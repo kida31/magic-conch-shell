@@ -1,7 +1,7 @@
 import { QueryType } from "discord-player";
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { Command, CommandExecution, CommandData, CommandResolution, SelectMenuCommand } from "../../commands/Command";
+import { Command, CommandExecution, CommandData, CommandResolution } from "../../commands/Command";
 
 export class MusicCommandBuilder {
     builder: CommandData
@@ -49,15 +49,8 @@ export class MusicCommandBuilder {
         return this;
     }
 
-    build(): Command | SelectMenuCommand {
+    build(): Command {
         this.validate();
-        if (this.resolve) {
-            return {
-                data: this.builder,
-                execute: this.execute!,
-                resolve: this.resolve
-            }
-        }
         return {
             data: this.builder,
             execute: this.execute!,

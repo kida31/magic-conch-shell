@@ -78,11 +78,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
-client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isStringSelectMenu()) return;
-    MenuInteractionHandler.resolveInteraction(interaction);
-})
-
 /** DEPLOY COMMANDS */
 if (doDeploy) {
     (async () => {

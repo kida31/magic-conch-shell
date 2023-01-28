@@ -1,5 +1,5 @@
-import { Interaction, CacheType, InteractionType, StringSelectMenuInteraction } from "discord.js";
-import { Command, CommandResolution, SelectMenuCommand } from "src/commands/Command";
+import { Interaction, CacheType, StringSelectMenuInteraction } from "discord.js";
+import { Command, CommandResolution } from "src/commands/Command";
 
 type InitialInteraction = Interaction<CacheType>;
 type ResponseInteraction = StringSelectMenuInteraction<CacheType>;
