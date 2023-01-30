@@ -1,7 +1,10 @@
-import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { CacheType, EmbedBuilder, Interaction, InteractionReplyOptions, InteractionType, SlashCommandBuilder, User } from "discord.js";
 import { Command } from "../../commands/Command";
-import { searchGifs } from "../../applets/tenor";
-import { logger } from "../../common/logger";
+import { quickRandomSearch } from "../../applets/Tenor/Tenor";
+import { logger as parentLogger } from "../../common/logger";
+import { SearchOptions } from "src/applets/Tenor/Types";
+
+const logger = parentLogger.child({ label: "GifCommandBuilder" });
 
 export class GifCommandBuilder {
     name: string
@@ -54,14 +57,8 @@ export class GifCommandBuilder {
                         .setDescription(`Person to ${name}`)
                         .setRequired(true)),
             async execute(interaction) {
-                if (CACHE.length === 0) {
-                    CACHE = await searchGifs({ q: gifQuery, media_filter: "tinygif", limit: "50" });
-                    logger.notice(`Populate Tenor cache for ${name}::${gifQuery}`)
-                }
-
                 // Randomize image result
-                const idx = Math.floor(Math.random() * CACHE.length);
-                const imageUrl = CACHE[idx];
+                const imageUrl = await quickRandomSearch({ q: gifQuery }).then(img => img.url);
 
                 const target = interaction.options.getUser('target');
                 const embed = new EmbedBuilder()
@@ -78,5 +75,64 @@ export class GifCommandBuilder {
                 });
             }
         }
+    }
+}
+
+type GifMessageOptions = {
+    interaction: Interaction;
+    gifQuery: string,
+    message: string,
+    mention?: User
+}
+
+export async function doSomethingToTarget(options: GifMessageOptions) {
+    logger.notice("DoSomething", options);
+
+    const { interaction, gifQuery, message } = options;
+    const { mention } = options;
+
+    const image = await quickRandomSearch({ q: gifQuery });
+    const embed = new EmbedBuilder()
+        .setImage(image.url)
+        .setDescription(message)
+        .setFooter({ text: "Powered by Tenor", iconURL: "https://tenor.com/assets/img/tenor-logo.svg" });
+
+    const reply: InteractionReplyOptions = { embeds: [embed] }
+    if (mention) reply.content = mention.toString();
+
+    if (!interaction.isRepliable()) throw new Error("Unexpected InteractionType" + interaction.type);
+
+    await interaction.reply(reply);
+}
+
+interface SlashCommandBlueprint {
+    name: string,
+    description?: string
+}
+
+export function generateExecute(commandOptions: { query: string; message: string, placeholder?: { actor?: string, target?: string } }) {
+    return async function execute(interaction: Interaction) {
+        const actor = interaction.user;
+
+        // Try get target
+        let target: User | null = null;
+        if ("targetUser" in interaction) {
+            target = interaction.targetUser;
+        } else if ("options" in interaction && "getUser" in interaction.options) {
+            target = interaction.options.getUser("target", true);
+        } else {
+            throw new Error("Could not resolve target");
+        }
+
+        // Apply message replacements
+        if (commandOptions.placeholder?.actor) commandOptions.message = commandOptions.message.replaceAll(commandOptions.placeholder.actor, actor.username)
+        if (commandOptions.placeholder?.target) commandOptions.message = commandOptions.message.replaceAll(commandOptions.placeholder.target, target.username)
+
+        return await doSomethingToTarget({
+            interaction: interaction,
+            gifQuery: commandOptions.query,
+            message: commandOptions.message,
+            mention: target,
+        });
     }
 }

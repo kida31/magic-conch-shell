@@ -1,16 +1,13 @@
+import { QueryType } from "discord-player";
 import { MusicCommandBuilder } from "../../utils/CommandBuilder/MusicCommandBuilder";
+import { Command } from "../Command";
 import { MusicContext } from "../../applets/MusicContext";
 import { PlayerMessage } from "../../../src/messages/GenericResponses";
 
-export default new MusicCommandBuilder("stop", "Stop music player")
+export default new MusicCommandBuilder("resume", "Resume music playback")
     .addFunction(async (interaction) => {
+        await interaction.deferReply({ ephemeral: true });
         const music = new MusicContext(interaction);
-        if (music.isConnected) {
-            await music.stop();
-            await interaction.reply(PlayerMessage.STOPPED);
-        } else {
-            await interaction.reply(PlayerMessage.INVALID_OPERATION);
-        }
+        await music.play();
     })
-    .build();
-
+    .build() as Command;

@@ -1,17 +1,23 @@
 import {
   CacheType,
   ChatInputCommandInteraction,
+  CommandInteraction,
+  MessageContextMenuCommandInteraction,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
-  StringSelectMenuInteraction
+  StringSelectMenuInteraction,
+  UserContextMenuCommandInteraction
 } from "discord.js";
 
 export type CommandData = SlashCommandBuilder | SlashCommandSubcommandBuilder | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-export type CommandExecution = (interaction: ChatInputCommandInteraction<CacheType>) => Promise<void>
-export type CommandResolution = (interaction: StringSelectMenuInteraction<CacheType>) => Promise<void>;
+
+type OtherCmdInteraction = ChatInputCommandInteraction | MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction;
+
+export type CommandExecution = (interaction: CommandInteraction) => Promise<void>
+export type CommandResolution = (interaction: StringSelectMenuInteraction) => Promise<void>;
 
 export interface Command {
-  data: CommandData
+  data: CommandData// | CommandData[]
   execute: CommandExecution;
 }
 

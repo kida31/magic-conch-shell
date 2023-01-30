@@ -2,15 +2,13 @@ import { MusicCommandBuilder } from "../../utils/CommandBuilder/MusicCommandBuil
 import { MusicContext } from "../../applets/MusicContext";
 import { PlayerMessage } from "../../../src/messages/GenericResponses";
 
-export default new MusicCommandBuilder("stop", "Stop music player")
+export default new MusicCommandBuilder("nowplaying", "Show currently played track")
     .addFunction(async (interaction) => {
         const music = new MusicContext(interaction);
-        if (music.isConnected) {
-            await music.stop();
-            await interaction.reply(PlayerMessage.STOPPED);
+        if (!!music.nowPlaying) {
+            await interaction.reply(PlayerMessage.NOW_PLAYING(music.queue));
         } else {
-            await interaction.reply(PlayerMessage.INVALID_OPERATION);
+            await interaction.reply(PlayerMessage.QUEUE_EMPTY);
         }
     })
     .build();
-

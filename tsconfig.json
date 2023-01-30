@@ -22,7 +22,7 @@
     "baseUrl": "./"
   },
   "files": [
-    "src/test.ts"
+    "src/sandbox.ts"
   ],
   "include": [
     "./**/*.ts",

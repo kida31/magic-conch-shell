@@ -74,4 +74,4 @@ function main() {
   })();
 }
 
-export { deployCommandArray, main };
+export { deployCommandArray };

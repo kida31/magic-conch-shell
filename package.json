@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/app.ts",
     "dev": "nodemon src/app.ts",
-    "sandbox": "nodemon src/test.ts",
+    "sandbox": "nodemon src/sandbox.ts",
     "deploy": "ts-node src/app.ts --dry --deploy"
   },
   "keywords": [],
