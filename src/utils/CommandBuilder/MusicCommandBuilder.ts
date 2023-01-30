@@ -1,13 +1,13 @@
 import { QueryType } from "discord-player";
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { Command, CommandExecution, CommandData, CommandResolution } from "../../commands/Command";
+import { Command, CommandExecute, CommandData, CommandResolve } from "../../commands/Command";
 
 export class MusicCommandBuilder {
     builder: CommandData
 
-    execute?: CommandExecution;
-    resolve?: CommandResolution;
+    execute?: CommandExecute;
+    resolve?: CommandResolve;
 
     constructor(name: string, description: string) {
         this.builder = new SlashCommandBuilder()
@@ -16,6 +16,7 @@ export class MusicCommandBuilder {
     }
 
     addQueryOption(required: boolean = true): MusicCommandBuilder {
+        if (!(this.builder instanceof SlashCommandBuilder)) throw new Error("Incompatible type " + typeof this.builder);
         this.builder = this.builder
             .addStringOption(option =>
                 option
@@ -27,6 +28,7 @@ export class MusicCommandBuilder {
     }
 
     addQueryTypeOption(): MusicCommandBuilder {
+        if (!(this.builder instanceof SlashCommandBuilder)) throw new Error("Incompatible type " + typeof this.builder);
         const queryTypes = Object.keys(QueryType).filter((item) => isNaN(Number(item)));
         const choices = queryTypes.map((t) => ({ name: t, value: t }));
 
@@ -39,12 +41,12 @@ export class MusicCommandBuilder {
         return this;
     }
 
-    addFunction(f: CommandExecution) {
+    addFunction(f: CommandExecute) {
         this.execute = f;
         return this;
     }
 
-    addResolveFunction(f: CommandResolution) {
+    addResolveFunction(f: CommandResolve) {
         this.resolve = f;
         return this;
     }

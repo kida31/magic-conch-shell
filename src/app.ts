@@ -1,12 +1,12 @@
-import { ChannelType, Client, Events, GatewayIntentBits, Guild, GuildMember, TextChannel } from "discord.js";
+import { Client, ContextMenuCommandBuilder, Events, GatewayIntentBits, GuildMember, RESTPostAPIContextMenuApplicationCommandsJSONBody } from "discord.js";
 import { Command } from "./commands/Command";
 import { logger } from "./common/logger";
 import * as dotenv from "dotenv";
-import * as CommandFolder from "./commands";
+import { CommandCollection } from "./commands";
 import { MusicContext } from "./applets/MusicContext";
-import { Queue, StreamDispatcher, Track } from "discord-player";
-import { ConnectionOptions } from "tls";
+import { Queue, StreamDispatcher } from "discord-player";
 import { PlayerMessage } from "./messages/GenericResponses";
+import { deployData } from "./CommandDeployer";
 
 /** ENVIRONMENT VARIABLES */
 dotenv.config();
@@ -18,10 +18,9 @@ const noLogin = argv.includes("--dry");
 const doDeploy = argv.includes("--deploy");
 
 /** COMMANDS */
+
 const commands: Map<string, Command> = new Map();
-CommandFolder.getAll().forEach(c => {
-    // commands.set(c.data.name, c)
-});
+CommandCollection.getAll().forEach(cmd => commands.set(cmd.data.name, cmd));
 
 /** CREATE CLIENT */
 const client = new Client({
@@ -33,7 +32,7 @@ const client = new Client({
 });
 
 /** LOGGING */
-client.on(Events.ClientReady, (_c) => { logger.info(`The bot is online with ${CommandFolder.getAll().length} commands!`) });
+client.on(Events.ClientReady, (_c) => { logger.info(`The bot is online with ${commands.values.length} commands!`) });
 client.once(Events.ClientReady, (c) => { logger.info(`Ready! Logged in as ${c.user.tag}`) });
 client.on(Events.Debug, (s) => { logger.debug(s) });
 client.on(Events.Warn, (s) => { logger.warning(s) });
@@ -110,6 +109,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
+// UserContextMenuC
 client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isCommand()) return;
     if (!interaction.isUserContextMenuCommand()) return;
@@ -119,10 +119,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
 /** DEPLOY COMMANDS */
 if (doDeploy) {
     (async () => {
-        const { deployCommandArray } = await import("./deploy-commands");
         if (doDeploy) {
-            deployCommandArray(Array.from(commands.values()).map(c => c.data.toJSON()))
-            await logger.info("Deployed commands");
+            await deployData(CommandCollection.getAllJson())
+            logger.info("Deployed commands");
         }
     })()
 }

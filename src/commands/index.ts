@@ -4,13 +4,15 @@ import { logger as parentLogger } from "../common/logger";
 import { Command, isCommand } from "./Command";
 
 let logger = parentLogger.child({ label: "CommandCollector" })
+
+const ROOT_DIR = __dirname;
+
 const commands_cache: Command[] = [];
 
-function _loadAll() {
+function _loadAll(dir: string) {
     logger.notice("Collecting commands...");
-    const root = __dirname;
 
-    // Grab all the command files from the commands directory you created earlier
+
     function readDir(dir: string): Command[] {
         const commands: Command[] = []
 
@@ -41,19 +43,20 @@ function _loadAll() {
         return commands;
     }
 
-    return readDir(root);
+    return readDir(dir);
 }
 
-export function getAll(): Command[] {
-    if (commands_cache.length == 0) {
-        commands_cache.push(..._loadAll());
+export const CommandCollection = {
+    getAll(): Command[] {
+        if (commands_cache.length == 0) {
+            commands_cache.push(..._loadAll(ROOT_DIR));
+        }
+        return commands_cache;
+    },
+    getAllJson() {
+        return this.getAll().map(cmd => cmd.data.toJSON());
+    },
+    getSlashCommands() {
+        return;
     }
-    return commands_cache;
-}
-
-export function getAllJsonData(): any[] {
-    if (commands_cache.length == 0) {
-        commands_cache.push(..._loadAll());
-    }
-    return commands_cache.map(cmd => cmd.data.toJSON());
 }
