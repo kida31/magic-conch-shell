@@ -15,7 +15,10 @@ import {
 
 type SlashCommandWithOptions = Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 
-export type CommandData = SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandWithOptions | ContextMenuCommandBuilder;
+export type SlashCommandData = SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandWithOptions
+export type ContextMenuCommandData = ContextMenuCommandBuilder
+export type CommandData = SlashCommandData | ContextMenuCommandData;
+
 export type CommandExecute = (interaction: CommandInteraction) => Promise<void>
 export type CommandResolve = (interaction: StringSelectMenuInteraction) => Promise<void>;
 

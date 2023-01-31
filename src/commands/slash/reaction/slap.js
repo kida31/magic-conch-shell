@@ -1,4 +1,4 @@
-import { GifCommandBuilder } from "../../utils/CommandBuilder/GifCommandBuilder";
+import { GifCommandBuilder } from "../../../utils/CommandBuilder/GifCommandBuilder";
 
 module.exports = new GifCommandBuilder()
     .setName('slap')

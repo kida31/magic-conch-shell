@@ -1,7 +1,8 @@
+import { SlashCommandBuilder } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import { logger as parentLogger } from "../common/logger";
-import { Command, isCommand } from "./Command";
+import { SlashCommand, UserContextMenuCommand, Command, isCommand, SlashCommandData } from "./Command";
 
 let logger = parentLogger.child({ label: "CommandCollector" })
 
@@ -57,6 +58,8 @@ export const CommandCollection = {
         return this.getAll().map(cmd => cmd.data.toJSON());
     },
     getSlashCommands() {
-        return;
+        // this.getAll().forEach(c => console.log())
+        type keys = keyof SlashCommand;
+        console.log(keys);
     }
 }
