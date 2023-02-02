@@ -1,7 +1,7 @@
 import { Player, PlayerSearchResult, QueryType, Queue, Track } from "discord-player";
 import { ChannelType, Client, CommandInteraction, TextChannel } from "discord.js";
 import { logger as parentLogger } from "../common/Logger";
-
+import { inspect } from "node:util";
 const logger = parentLogger.child({ label: "MusicContext" })
 type _InteractionType = CommandInteraction;
 
@@ -44,7 +44,7 @@ export class MusicContext {
         if (queueUndefined) {
             this._queue = queueUndefined;
         } else {
-            this._queue = this.player.createQueue(interaction.guild!, { initialVolume: 15 });
+            this._queue = this.player.createQueue(interaction.guild!, { initialVolume: 12 });
         }
 
         if (interaction.channel?.type == ChannelType.GuildText) {
@@ -104,17 +104,23 @@ export class MusicContext {
     }
 
     async search(query: string, queryType: QueryType | string): Promise<PlayerSearchResult> {
+        if (typeof queryType === "string") {
+            queryType = QueryType[queryType as keyof typeof QueryType];
+        }
+
         logger.info(`Search requested`, {
             query, queryType, interactionId: this.interaction.id, user: {
                 username: this.interaction.user.username,
                 tag: this.interaction.user.tag,
             }
         });
+
         const result = await this.player.search(query, {
             requestedBy: this.interaction.user,
             searchEngine: queryType,
         })
-        logger.info(`Search completed`, { by: this.interaction.id });
+
+        logger.info(`Search completed`, { by: this.interaction.id, result: inspect(result) });
         return result;
     }
 

@@ -88,7 +88,7 @@ client.on(Events.InteractionCreate, (m) => { logger.debug(m) });
         MusicContext.getTextChannel(queue)?.send(PlayerMessage.ADDED_TRACK(track));
     });
     MusicContext.player.addListener("tracksAdd", (queue, tracks) => {
-        musicLogger.info("Added multiple tracks", { tracks: tracks.map(t => ({ title: t.title, author: t.author, requestedBy: t.requestedBy, duration: t.duration })) })
+        musicLogger.info("Added multiple tracks", { tracks: tracks.map(t => ({ title: t.title, author: t.author, duration: t.duration })) })
         MusicContext.getTextChannel(queue)?.send(PlayerMessage.ADDED_TRACKS(tracks));
     });
     MusicContext.player.addListener("trackEnd", (queue, track) => {
@@ -114,7 +114,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 
     if (!command) {
-        logger.error(`No command matching ${interaction.commandName} was found.`);
+        logger.warning(`No command matching ${interaction.commandName} was found.`);
         return;
     }
 
@@ -132,7 +132,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
         await command.execute(interaction);
         meta.status = "Complete";
     } catch (error) {
-        logger.error(error instanceof Error ? error.stack : "App.ts Error");
+        if (error instanceof Error) {
+            logger.warning(error.message);
+            logger.error(error.stack ?? "", error);
+        }
+
 
         await interaction.reply({
             content: "There was an error while executing this command!",
@@ -144,13 +148,15 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.on('messageCreate', async (message) => {
-    if (message.content.length > 500) {
-        await message.reply(GenericReply.WARNING);
-        return;
-    }
     if (message.author.id == message.client.user.id) return;
     logger.log("trace", "Observed a message: " + message.content.substring(0, 30) + "...")
     if (!message.mentions.has(message.client.user)) return;
+
+    if (message.content.length > 500) {
+        message.client
+        await message.reply(GenericReply.WARNING);
+        return;
+    }
 
     logger.debug("Someone mentioned the bot", message.content);
     await message.channel.sendTyping();

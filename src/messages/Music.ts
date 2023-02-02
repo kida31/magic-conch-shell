@@ -1,5 +1,6 @@
 import { Track, Queue } from "discord-player";
 import { EmbedBuilder, InteractionReplyOptions } from "discord.js";
+import { logger } from "../common/Logger";
 import { GeneralReply, embedReply, embedMessage } from "./Common";
 
 class PlayerMessageImpl implements GeneralReply {
@@ -71,9 +72,10 @@ class PlayerMessageImpl implements GeneralReply {
         const embed = new EmbedBuilder().setTitle("Queue");
 
         if (author) {
+            logger.info("AUTHOR INFO", { name: author.toString(), iconURL: author.avatarURL(), fallback: author.defaultAvatarURL })
             embed
-                .setAuthor({ name: author.toString(), iconURL: author.avatar ?? author.defaultAvatarURL })
-                .setThumbnail(author.avatar ?? author.defaultAvatarURL)
+                .setAuthor({ name: author.toString(), iconURL: author.avatarURL() ?? author.defaultAvatarURL })
+                .setThumbnail(author.avatarURL() ?? author.defaultAvatarURL)
         }
 
         let description = "";
@@ -81,7 +83,7 @@ class PlayerMessageImpl implements GeneralReply {
 
         if (current) {
             embed.setThumbnail(current.thumbnail);
-            description += `[${current.title} - ${current.author}](${current.url}) ${current.requestedBy}}\n${queue.createProgressBar()}\n\n`
+            description += `[${queue.createProgressBar()}\n${current.title} - ${current.author}](${current.url}) ${current.requestedBy}}\n\n`
         }
 
         if (tracks.length > 0) {
@@ -102,7 +104,7 @@ class PlayerMessageImpl implements GeneralReply {
                 + " minute(s)"
         });
 
-        return { embeds: [embed], ephemeral: true };
+        return { embeds: [embed] };
     }
 
     get STOPPED() {
@@ -114,7 +116,7 @@ class PlayerMessageImpl implements GeneralReply {
     }
 
     NO_RESULTS(query?: string) {
-        return embedMessage("No results found" + query ? (" for " + query) : "", "Grey")
+        return { ...embedMessage("No results found" + (query ? (" for " + query) : ""), "Grey"), ephemeral: true }
     }
 
     get USER_NOT_IN_VOICE() {

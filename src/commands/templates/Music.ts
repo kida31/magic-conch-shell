@@ -1,7 +1,7 @@
 import * as discordPlayer from "discord-player";
 import { QueryType } from "discord-player";
 import {
-    ButtonBuilder,
+    ActionRowBuilder, ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
     CacheType,
@@ -9,15 +9,14 @@ import {
     DiscordjsErrorCodes,
     Interaction,
     InteractionReplyOptions,
-    SlashCommandBuilder,
-    StringSelectMenuInteraction
+    SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction
 } from "discord.js";
 import { MusicContext } from "../../applets/MusicContext";
-import { logger } from "../../common/Logger";
+import { logger as parent, safeStringify } from "../../common/Logger";
 import { PlayerMessage } from "../../messages/Music";
-import { Command, CommandData } from "../Command";
+import { Command, CommandData, isCommand } from "../Command";
 
-const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const logger = parent.child({ label: "command:music" });
 
 export class DataBuilder {
     builder: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
@@ -158,7 +157,16 @@ export abstract class SearchCommand implements Command {
             return;
         }
 
+        await interaction.deferReply(
+            // { ephemeral: true }
+        );
+
         let result = await musicbot.search(query, queryType);
+
+        if (result.tracks.length == 0) {
+            await interaction.editReply(PlayerMessage.NO_RESULTS(query));
+            return;
+        }
 
         const trackOptions = result.tracks.map(t => ({
             label: t.title,
@@ -171,85 +179,59 @@ export abstract class SearchCommand implements Command {
             .setMinValues(0)
             .setMaxValues(trackOptions.length)
             .setPlaceholder("Select one or more songs")
-            .addOptions(...trackOptions)
-
-        const confirmButton = new ButtonBuilder()
-            .setCustomId("search-confirm")
-            .setStyle(ButtonStyle.Success)
-            .setLabel("Add to Queue")
-            .setEmoji("▶️");
+            .addOptions(...trackOptions);
 
         const addAllButton = new ButtonBuilder()
             .setCustomId("search-all")
             .setStyle(ButtonStyle.Primary)
-            .setLabel("Add all")
+            .setLabel("Add all (" + trackOptions.length + ")");
 
         const cancelButton = new ButtonBuilder()
             .setCustomId("search-cancel")
             .setStyle(ButtonStyle.Secondary)
-            .setLabel("Cancel")
+            .setLabel("Cancel");
 
-        const selectMenuRow = new ActionRowBuilder().addComponents(selectMenu)
-        const buttonRow = new ActionRowBuilder().addComponents(confirmButton, addAllButton, cancelButton);
+        const selectMenuRow = new ActionRowBuilder<any>().addComponents(selectMenu);
+        const buttonRow = new ActionRowBuilder().addComponents(addAllButton, cancelButton);
 
         const replyOptions: InteractionReplyOptions = {
             content: `Found **${result.tracks.length}** results for **${query}**`,
             components: [selectMenuRow, buttonRow],
-            ephemeral: true
         }
 
-        const message = await interaction.reply(replyOptions);
+        const message = await interaction.editReply(replyOptions);
 
-        const disableInteraction = async () => {
-            selectMenu.setDisabled(true);
-            replyOptions.components = [selectMenuRow];
-            await interaction.editReply(replyOptions);
-        }
-
-        // Refresh read values
-        let selectedValues: string[];
         message.awaitMessageComponent({
-            componentType: ComponentType.StringSelect,
-            filter: async (i: StringSelectMenuInteraction) => {
+            filter: async (i) => {
                 await i.deferUpdate();
-                if (i.user.id == interaction.user.id && i.customId == 'search-select') selectedValues = i.values;
-                return false
+                const isSelect = i.isStringSelectMenu() && i.customId == "search-select";
+                const isButton = i.isButton() && (i.customId == "search-all" || i.customId == "search-cancel");
+                if (isSelect || isButton) {
+                    return i.user.id == interaction.user.id;
+                }
+                return false;
             },
-            time: 15_000
-        }).then(ignored => { }).catch(disableInteraction);
-
-        // On Confirm or AddAll button
-        message.awaitMessageComponent({
-            filter: async (i: ButtonInteraction) => {
-                await i.deferUpdate();
-                return i.user.id == interaction.user.id;
-            },
-            componentType: ComponentType.Button,
-            time: 15_000
-        }).then(async response => {
+            time: 60_000
+        }).then(async (res) => {
             logger.info("Confirmed Interaction");
-            disableInteraction();
+            await interaction.deleteReply();
 
-            if (response.customId == "search-confirm") {
-                const selectedTracks = selectedValues
+            if (res.isStringSelectMenu()) {
+                const selectedTracks = res.values
                     .map(id => result.tracks.find(t => t.id == id))
                     .filter((t: discordPlayer.Track | undefined): t is discordPlayer.Track => !!t);
                 musicbot.addTracks(selectedTracks);
-
-            } else if (response.customId == "search-all") {
+            } else if (res.customId == "search-all") {
                 musicbot.addTracks(result.tracks);
             }
-        }).catch(err => {
-            disableInteraction();
-
+        }).catch(async (err: Error) => {
             if ("code" in err && err.code == DiscordjsErrorCodes.InteractionCollectorError) {
                 logger.info({ message: "Interaction expired", id: interaction.id });
                 return;
             }
-            if (err instanceof Error) {
-                logger.error(err.stack);
-            }
-        });
+            logger.warning(err.message);
+            logger.error(err.stack ?? "", err);
+        })
     }
 }
 

@@ -42,6 +42,7 @@ class AdminCommand implements SlashCommand {
                     { name: "text-babbage-001", value: "text-babbage-001" },
                     { name: "text-curie-001", value: "text-curie-001" },
                     { name: "text-ada-001", value: "text-ada-001" },
+                    { name: "text-davinci-003", value: "text-davinci-003" }
                 )));
 
     async execute(interaction: Interaction<CacheType>) {

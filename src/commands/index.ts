@@ -34,8 +34,8 @@ function _loadAll(dir: string) {
                 } catch (e) {
                     logger.warning(`Failed to read '${file}'`);
                     if (e instanceof Error) {
-                        logger.error(e.stack);
-                        logger.error(e.message);
+                        logger.warning(e.stack);
+                        logger.warning(e.message);
                     }
                 }
             } else if (fs.statSync(file).isDirectory()) {
