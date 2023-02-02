@@ -44,7 +44,7 @@ export class MusicContext {
         if (queueUndefined) {
             this._queue = queueUndefined;
         } else {
-            this._queue = this.player.createQueue(interaction.guild!, { initialVolume: 10 });
+            this._queue = this.player.createQueue(interaction.guild!, { initialVolume: 15 });
         }
 
         if (interaction.channel?.type == ChannelType.GuildText) {
