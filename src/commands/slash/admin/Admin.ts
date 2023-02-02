@@ -3,6 +3,7 @@ import { CacheType, ChatInputCommandInteraction, ClientPresence, Interaction, Pr
 import { CommandExecute, SlashCommand, SlashCommandData } from "../../Command";
 import { logger as parent } from "../../../common/Logger";
 import { GenericReply } from "../../../messages/Common";
+import { MusicContext } from "../../../applets/MusicContext";
 
 const logger = parent.child({ label: "admin" })
 
@@ -74,7 +75,20 @@ const status: SubFunc = async function (interaction) {
         await interaction.client.user.setStatus(status);
         await interaction.reply(GenericReply.CONFIRM_QUIET);
     } else {
-        await interaction.reply({ ephemeral: true, content: interaction.client.user.presence.status })
+        let info: Map<string, string> = new Map();
+        const musicplayer = new MusicContext(interaction);
+
+        info.set("Status", interaction.client.user.presence.status);
+        info.set("Music playing", "" + musicplayer.queue.playing);
+        info.set("Volume", "" + musicplayer.queue.volume);
+
+        const text = Array
+            .from(info.entries())
+            .map(([k, v]) => k + "=" + v)
+            .join("\n");
+
+        logger.warning(text + info.size,);
+        await interaction.reply({ ephemeral: true, content: "```\n" + text + "\n```" });
     }
 }
 

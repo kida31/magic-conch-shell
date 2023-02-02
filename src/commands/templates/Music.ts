@@ -69,7 +69,7 @@ export class DataBuilder {
 
 export abstract class PlayCommand implements Command {
     abstract data: CommandData;
-    abstract getQuery(interaction: Interaction<CacheType>): string;
+    abstract getQuery(interaction: Interaction<CacheType>): string | null;
     abstract getQueryType(interaction: Interaction<CacheType>): string | any;
 
 
@@ -83,6 +83,12 @@ export abstract class PlayCommand implements Command {
 
         if (!await musicbot.joinChannel()) {
             await interaction.reply(PlayerMessage.USER_NOT_IN_VOICE);
+            return;
+        }
+
+        if (!query) {
+            await musicbot.play();
+            await interaction.reply(PlayerMessage.CONFIRM_QUIET);
             return;
         }
 
@@ -129,9 +135,10 @@ export abstract class ResumeCommand implements Command {
     async execute(interaction: Interaction<CacheType>): Promise<void> {
         if (!interaction.isCommand()) return;
 
-        await interaction.deferReply({ ephemeral: true });
+
         const music = new MusicContext(interaction);
         await music.play();
+        await interaction.reply(PlayerMessage.NOW_PLAYING(music.queue));
     }
 }
 

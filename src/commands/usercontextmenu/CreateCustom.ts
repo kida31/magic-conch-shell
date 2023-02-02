@@ -55,13 +55,19 @@ export default {
             .then(async (submitInteraction) => {
                 logger.notice("I got something", submitInteraction);
 
+                const user = submitInteraction.user;
                 const target = interaction.targetUser;
+
+                const gActor = await interaction.guild?.members.fetch(user.id)
+                const gTarget = await interaction.guild?.members.fetch(target.id);
+
                 const message = submitInteraction.fields.getTextInputValue(customId("message"))
-                    .replaceAll("ACTOR", submitInteraction.user.username)
-                    .replaceAll("TARGET", target.username);
+                    .replaceAll("ACTOR", gActor?.displayName ?? user.toString())
+                    .replaceAll("TARGET", gTarget?.displayName ?? target.toString());
+
 
                 class CustomGifMessage extends GifMessageCommand {
-                    getParameters() {
+                    async getParameters() {
                         return {
                             query: submitInteraction.fields.getTextInputValue(customId("query")),
                             message: message,

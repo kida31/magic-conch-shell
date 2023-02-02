@@ -7,13 +7,13 @@ class SlashPlayCommand extends PlayCommand {
     data = new DataBuilder()
         .setName("play")
         .setDescription("Play some music")
-        .addQueryOption({ required: true })
+        .addQueryOption({ required: false })
         .addQueryTypeOption()
         .build();
 
-    getQuery(interaction: Interaction<CacheType>): string {
+    getQuery(interaction: Interaction<CacheType>): string | null {
         if (!interaction.isChatInputCommand()) return "";
-        return interaction.options.getString("q")!;
+        return interaction.options.getString("q");
     }
 
     getQueryType(interaction: Interaction<CacheType>) {

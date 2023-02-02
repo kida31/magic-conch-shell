@@ -20,7 +20,7 @@ function _loadAll(dir: string) {
 
         for (const filename of fs.readdirSync(dir)) {
             const file = path.join(dir, filename);
-            logger.log("trace", `Read file ${file}}`);
+            logger.debug(`Read file ${file}}`);
             if (file.endsWith(".js") || file.endsWith(".ts")) {
                 try {
                     let cmd = require(file);

@@ -33,25 +33,64 @@ const customLevels = {
 addColors(customLevels.colors);
 
 
-function safeStringify(obj: any, space?: string | number | undefined) {
+export function safeStringify(obj: any, space?: string | number | undefined) {
     return JSON.stringify(obj, (key, value) => typeof value === 'bigint' ? value.toString() : value, space)
 }
+
+export function toObject(obj: any) {
+    return JSON.parse(JSON.stringify(obj, (key, value) =>
+        typeof value === 'bigint'
+            ? value.toString()
+            : value // return everything else unchanged
+    ));
+}
+
+const commonFormat = format.combine(
+    format.json(),
+    format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    format.printf(({ level, message, timestamp, label, ...rest }) => {
+        let text = `${timestamp} [${label ?? "-----"}] ${level.toUpperCase()} ${message}`;
+        if (!!Object.keys(rest).length) text += ", " + safeStringify(rest)
+        return text
+    }))
 
 const logger = createLogger({
     level: LOG_LEVEL,
     levels: customLevels.levels,
-    transports: [new transports.Console({
-        format: format.combine(
-            format.json(),
-            format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-            format.printf(({ level, message, timestamp, label, ...rest }) => {
-                let text = `${timestamp} [${label ?? "-----"}] ${level.toUpperCase()} ${message}`;
-                if (!!Object.keys(rest).length) text += "\n" + safeStringify(rest)
-                return text
-            }),
-            format.colorize({ all: true }),
-        )
-    })]
+    transports: [
+        new transports.Console({
+            format: format.combine(
+                format.json(),
+                format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                format.printf(({ level, message, timestamp, label, ...rest }) => {
+                    let text = `${timestamp} [${label ?? "-----"}] ${level.toUpperCase()} ${message}`;
+                    if (!!Object.keys(rest).length) text += "\n" + safeStringify(rest)
+                    return text
+                }),
+                format.colorize({ all: true }),
+            )
+        }),
+        new transports.File({
+            filename: "logs/error.log",
+            level: "error",
+            format: commonFormat
+        }),
+        new transports.File({
+            filename: "logs/notice.log",
+            level: "notice",
+            format: commonFormat
+        }),
+        new transports.File({
+            filename: "logs/info.log",
+            level: "info",
+            format: commonFormat
+        }),
+        new transports.File({
+            filename: "logs/trace.log",
+            level: "trace",
+            format: commonFormat
+        }),
+    ]
 });
 
 export { logger };

@@ -10,7 +10,7 @@ export class MusicContext {
     static queueIdToTextChannel: Map<string, TextChannel> = new Map();
 
     interaction: _InteractionType
-    _queue: Queue
+    private _queue: Queue
 
     static get player(): Player {
         return this._player;
@@ -44,7 +44,7 @@ export class MusicContext {
         if (queueUndefined) {
             this._queue = queueUndefined;
         } else {
-            this._queue = this.player.createQueue(interaction.guild!);
+            this._queue = this.player.createQueue(interaction.guild!, { initialVolume: 10 });
         }
 
         if (interaction.channel?.type == ChannelType.GuildText) {
@@ -77,6 +77,7 @@ export class MusicContext {
     }
 
     async play() {
+        if (this._queue.connection.paused) await this._queue.connection.resume();
         if (!this._queue.playing) await this._queue.play();
     }
 

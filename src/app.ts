@@ -1,5 +1,5 @@
 import { Queue, StreamDispatcher } from "discord-player";
-import { Client, Events, GatewayIntentBits, GuildMember } from "discord.js";
+import { Client, Events, GatewayIntentBits, GuildMember, InteractionCollector } from "discord.js";
 import * as dotenv from "dotenv";
 import { MusicContext } from "./applets/MusicContext";
 import { deployData } from "./CommandDeployer";
@@ -7,6 +7,7 @@ import { CommandCollection } from "./commands";
 import { Command, SlashCommand, UserContextMenuCommand } from "./commands/Command";
 import { logger as parent } from "./common/Logger";
 import { PlayerMessage } from "./messages/Music";
+import { conch } from "./applets/OpenAI/MagicConchShell";
 
 parent.level = "trace"
 /** LOGGING */
@@ -50,6 +51,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
     ],
 });
 
@@ -98,7 +100,6 @@ client.on(Events.InteractionCreate, (m) => { logger.debug(m) });
     });
 }
 
-
 /** BOT BEHAVIOUR */
 client.on(Events.InteractionCreate, async (interaction) => {
     let command: Command | undefined;
@@ -138,10 +139,23 @@ client.on(Events.InteractionCreate, async (interaction) => {
             ephemeral: true,
         });
     } finally {
-        logger.log("trace", "New chat interaction", meta);
+        logger.debug("New chat interaction", meta);
     }
 });
 
+client.on('messageCreate', async (message) => {
+    if (message.author.id == message.client.user.id) return;
+    logger.log("trace", "Observed a message: " + message.content.substring(0, 30) + "...")
+    if (!message.mentions.has(message.client.user)) return;
+
+    logger.debug("Someone mentioned the bot", message.content);
+    await message.channel.sendTyping();
+    const res = await conch.ask(message);
+    const newMessage = { content: res == "" ? "Ask me later." : res };
+    logger.info("Bot Message:", newMessage)
+    await message.reply(newMessage);
+
+})
 
 /** DEPLOY COMMANDS */
 if (doDeploy) {

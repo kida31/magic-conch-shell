@@ -53,7 +53,7 @@ class PlayerMessageImpl implements GeneralReply {
         const t: Track = queue.current;
         return {
             embeds: [new EmbedBuilder()
-                .setTitle("Now playing")
+                .setTitle("Now playing " + (queue.playing && !queue.connection.paused ? ":arrow_forward: " : ":pause_button:"))
                 .setThumbnail(t.thumbnail)
                 .setDescription(`${t.title} - ${t.author}\n${queue.createProgressBar()}\n\nRequested by ${t.requestedBy}`)
                 .setColor("Blue")]
@@ -72,7 +72,7 @@ class PlayerMessageImpl implements GeneralReply {
 
         if (author) {
             embed
-                .setAuthor({ name: author.username, iconURL: author.avatar ?? author.defaultAvatarURL })
+                .setAuthor({ name: author.toString(), iconURL: author.avatar ?? author.defaultAvatarURL })
                 .setThumbnail(author.avatar ?? author.defaultAvatarURL)
         }
 

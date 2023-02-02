@@ -23,15 +23,15 @@ type GifMessageOptions = {
 
 export abstract class GifMessageCommand implements Command {
     abstract data: CommandData;
-    abstract getParameters(interaction: Interaction<CacheType>): {
+    abstract getParameters(interaction: Interaction<CacheType>): Promise<{
         query: string;
         message: string;
         target?: User;
-    };
+    }>;
     async execute(interaction: Interaction<CacheType>) {
         if (!interaction.isRepliable()) return;
 
-        const { message, query, target } = this.getParameters(interaction);
+        const { message, query, target } = await this.getParameters(interaction);
         const image = await quickRandomSearch({ q: query });
         const embed = new EmbedBuilder()
             .setImage(image.url)
@@ -74,12 +74,18 @@ export class SlashGifMessageCommand extends GifMessageCommand {
                     .setRequired(true));
 
     }
-    getParameters(interaction: Interaction<CacheType>): { query: string; message: string; target?: User | undefined; } {
-        let target = interaction.isChatInputCommand() ? interaction.options.getUser("target", true) : undefined;
+    async getParameters(interaction: Interaction<CacheType>): Promise<{ query: string; message: string; target?: User | undefined; }> {
+        if (!interaction.isChatInputCommand()) throw new Error("Unexpected interaction type");
+
+        const user = interaction.user;
+        const target = interaction.options.getUser("target", true);
+
+        const gActor = await interaction.guild?.members.fetch(user.id)
+        const gTarget = await interaction.guild?.members.fetch(target.id);
 
         const message = this.messageWithPlaceholder
-            .replaceAll("ACTOR", interaction.user.username)
-            .replaceAll("TARGET", target!.username);
+            .replaceAll("ACTOR", gActor?.displayName ?? user.toString())
+            .replaceAll("TARGET", gTarget?.displayName ?? target.toString());
 
         return {
             query: this.query,
@@ -111,12 +117,19 @@ export class UserContextMenuGifMessageCommand extends GifMessageCommand {
             .setType(ApplicationCommandType.User);
     }
 
-    getParameters(interaction: Interaction<CacheType>): { query: string; message: string; target?: User | undefined; } {
-        let target = interaction.isUserContextMenuCommand() ? interaction.targetUser : undefined;
+    async getParameters(interaction: Interaction<CacheType>): Promise<{ query: string; message: string; target?: User | undefined; }> {
+        if (!interaction.isUserContextMenuCommand()) throw new Error("Unexpected Interaction type");
+
+        const target = interaction.targetUser;
+        const user = interaction.user;
+
+        const gActor = await interaction.guild?.members.fetch(user.id)
+        const gTarget = await interaction.guild?.members.fetch(target.id);
 
         const message = this.messageWithPlaceholder
-            .replaceAll("ACTOR", interaction.user.toString())
-            .replaceAll("TARGET", target!.toString());
+            .replaceAll("ACTOR", gActor?.displayName ?? user.toString())
+            .replaceAll("TARGET", gTarget?.displayName ?? target.toString());
+
 
         return {
             query: this.query,
@@ -144,31 +157,4 @@ export async function doSomethingToTarget(options: GifMessageOptions) {
     if (!interaction.isRepliable()) throw new Error("Unexpected InteractionType" + interaction.type);
 
     await interaction.reply(reply);
-}
-
-export function buildExecute(commandOptions: { query: string; message: string, placeholder?: { actor?: string, target?: string } }) {
-    return async function execute(interaction: Interaction) {
-        const actor = interaction.user;
-
-        // Try get target
-        let target: User | null = null;
-        if ("targetUser" in interaction) {
-            target = interaction.targetUser;
-        } else if ("options" in interaction && "getUser" in interaction.options) {
-            target = interaction.options.getUser("target", true);
-        } else {
-            throw new Error("Could not resolve target");
-        }
-
-        // Apply message replacements
-        if (commandOptions.placeholder?.actor) commandOptions.message = commandOptions.message.replaceAll(commandOptions.placeholder.actor, actor.username)
-        if (commandOptions.placeholder?.target) commandOptions.message = commandOptions.message.replaceAll(commandOptions.placeholder.target, target.username)
-
-        return await doSomethingToTarget({
-            interaction: interaction,
-            gifQuery: commandOptions.query,
-            message: commandOptions.message,
-            mention: target,
-        });
-    }
 }
