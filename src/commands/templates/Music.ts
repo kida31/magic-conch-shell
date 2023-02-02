@@ -13,8 +13,8 @@ import {
     StringSelectMenuInteraction
 } from "discord.js";
 import { MusicContext } from "../../applets/MusicContext";
-import { logger } from "../../common/logger";
-import { PlayerMessage } from "../../messages/GenericResponses";
+import { logger } from "../../common/Logger";
+import { PlayerMessage } from "../../messages/Music";
 import { Command, CommandData } from "../Command";
 
 const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
@@ -79,17 +79,17 @@ export abstract class PlayCommand implements Command {
         const query = this.getQuery(interaction);
         const querytype = this.getQueryType(interaction);
 
-        const music = new MusicContext(interaction);
+        const musicbot = new MusicContext(interaction);
 
-        if (!await music.joinChannel()) {
+        if (!await musicbot.joinChannel()) {
             await interaction.reply(PlayerMessage.USER_NOT_IN_VOICE);
             return;
         }
 
-        const result = await music.search(query, querytype);
+        const result = await musicbot.search(query, querytype);
 
         if (result.tracks.length > 0) {
-            await music.addTrack(result.tracks[0]);
+            await musicbot.addTrack(result.tracks[0]);
             await interaction.reply(PlayerMessage.CONFIRM_QUIET);
         } else {
             await interaction.reply(PlayerMessage.NO_RESULTS(query));
@@ -144,11 +144,14 @@ export abstract class SearchCommand implements Command {
         const query: string = this.getOptions(interaction).query;
         const queryType: QueryType | string = this.getOptions(interaction).querytype ?? QueryType.YOUTUBE_SEARCH;
 
-        logger.debug(`queryType=${queryType}, query=${query}`);
+        let musicbot = new MusicContext(interaction);
 
-        let ctx = new MusicContext(interaction);
-        await ctx.joinChannel();
-        let result = await ctx.search(query, queryType);
+        if (!await musicbot.joinChannel()) {
+            await interaction.reply(PlayerMessage.USER_NOT_IN_VOICE);
+            return;
+        }
+
+        let result = await musicbot.search(query, queryType);
 
         const trackOptions = result.tracks.map(t => ({
             label: t.title,
@@ -224,9 +227,10 @@ export abstract class SearchCommand implements Command {
                 const selectedTracks = selectedValues
                     .map(id => result.tracks.find(t => t.id == id))
                     .filter((t: discordPlayer.Track | undefined): t is discordPlayer.Track => !!t);
-                ctx.addTracks(selectedTracks);
+                musicbot.addTracks(selectedTracks);
+
             } else if (response.customId == "search-all") {
-                ctx.addTracks(result.tracks);
+                musicbot.addTracks(result.tracks);
             }
         }).catch(err => {
             disableInteraction();
@@ -249,7 +253,7 @@ export abstract class ShuffleCommand implements Command {
         if (!interaction.isCommand()) return;
 
         const music = new MusicContext(interaction);
-        await music.skip();
+        await music.shuffle();
         await interaction.reply(PlayerMessage.SHUFFLED);
     }
 }

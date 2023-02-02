@@ -1,5 +1,5 @@
 import { request } from 'undici';
-import { logger } from '../../common/logger';
+import { logger } from '../../common/Logger';
 import * as dotenv from "dotenv";
 import { GifFormat, MediaFormats, MediaObject, SearchOptions, TenorResponse } from "./Types";
 

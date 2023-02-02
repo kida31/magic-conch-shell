@@ -1,7 +1,7 @@
 import { REST, Routes } from "discord.js";
 import * as dotenv from "dotenv";
 import { DeployableData } from "./commands/Command";
-import { logger as parent } from "./common/logger";
+import { logger as parent } from "./common/Logger";
 
 const logger = parent.child({ label: "Deployment" })
 

@@ -1,6 +1,6 @@
 import { Player, PlayerSearchResult, QueryType, Queue, Track } from "discord-player";
 import { ChannelType, Client, CommandInteraction, TextChannel } from "discord.js";
-import { logger as parentLogger } from "../common/logger";
+import { logger as parentLogger } from "../common/Logger";
 
 const logger = parentLogger.child({ label: "MusicContext" })
 type _InteractionType = CommandInteraction;

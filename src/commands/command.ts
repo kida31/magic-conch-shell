@@ -11,13 +11,12 @@ import {
   RESTPostAPIContextMenuApplicationCommandsJSONBody,
   SlashCommandBuilder,
   SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
   StringSelectMenuInteraction,
   UserContextMenuCommandInteraction
 } from "discord.js";
 
-type SlashCommandWithOptions = Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-
-export type SlashCommandData = SlashCommandBuilder | SlashCommandSubcommandBuilder | SlashCommandWithOptions
+export type SlashCommandData = SlashCommandSubcommandsOnlyBuilder | Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">
 export type ContextMenuCommandData = ContextMenuCommandBuilder
 export type CommandData = SlashCommandData | ContextMenuCommandData;
 
@@ -35,12 +34,12 @@ export interface Command {
 }
 
 export interface UserContextMenuCommand extends Command {
-  data: ContextMenuCommandBuilder,
+  data: ContextMenuCommandData,
   execute: CommandExecute
 }
 
 export interface SlashCommand extends Command {
-  data: SlashCommandBuilder,
+  data: SlashCommandData,
   execute: CommandExecute
 }
 

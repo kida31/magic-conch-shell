@@ -11,7 +11,7 @@ import {
     User
 } from "discord.js";
 
-import { logger as parentLogger } from "../../common/logger";
+import { logger as parentLogger } from "../../common/Logger";
 import { UserContextMenuCommand } from "../Command";
 import { GifMessageCommand } from "../templates/GifMessage";
 

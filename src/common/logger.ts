@@ -1,8 +1,7 @@
-import { debug } from "console";
-import { Interaction, CacheType, ChatInputCommandInteraction, BaseInteraction, User, CommandInteraction, StringSelectMenuInteraction } from "discord.js";
-import winston, { createLogger, format, Logger, transports, addColors, Logform } from "winston";
+import { CommandInteraction, StringSelectMenuInteraction } from "discord.js";
+import { addColors, createLogger, format, transports } from "winston";
 
-const LOG_LEVEL = "trace";
+const LOG_LEVEL = "info";
 
 const customLevels = {
     levels: {
@@ -55,7 +54,7 @@ const logger = createLogger({
     })]
 });
 
-export { logger }
+export { logger };
 
 type LoggableInteraction = CommandInteraction | StringSelectMenuInteraction;
 interface InteractionLog {

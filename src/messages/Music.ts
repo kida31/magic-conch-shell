@@ -1,58 +1,6 @@
-import { Playlist, Queue, Track } from "discord-player";
-import { ActionRowData, APIActionRowComponent, APIEmbed, APIMessageActionRowComponent, AutocompleteInteraction, CacheType, ColorResolvable, EmbedBuilder, Interaction, InteractionReplyOptions, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, MessagePayload, MessagePayloadOption, User } from "discord.js";
-import { MusicContext } from "../../src/applets/MusicContext";
-import { StringDecoder } from "string_decoder";
-import { logger } from "../../src/common/logger";
-
-
-class ResponseBuilder {
-    _reply: InteractionReplyOptions
-
-    constructor(ephemeral: boolean = false) {
-        this._reply = { ephemeral: ephemeral };
-    }
-
-    ephemeral(): ResponseBuilder {
-        this._reply.ephemeral = true;
-        return this;
-    }
-
-    addEmbed(e: APIEmbed | JSONEncodable<APIEmbed>): ResponseBuilder {
-        if (!this._reply.embeds) this._reply.embeds = [];
-        this._reply.embeds.push(e);
-        return this;
-    }
-
-    addComponent(c: APIActionRowComponent<APIMessageActionRowComponent> | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>> | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>): ResponseBuilder {
-        if (!this._reply.components) this._reply.components = [];
-        this._reply.components.push(c);
-        return this;
-    }
-
-    addContent(s: string): ResponseBuilder {
-        this._reply.content = s;
-        return this;
-    }
-
-    build(): InteractionReplyOptions {
-        return this._reply;
-    }
-
-    reply(ctx: Interaction<CacheType>) {
-        if (ctx.isAutocomplete()) return;
-        ctx.reply(this._reply);
-    }
-}
-
-interface GeneralReply {
-    // General
-    CONFIRM: InteractionReplyOptions
-    CONFIRM_QUIET: InteractionReplyOptions
-    WARNING: InteractionReplyOptions
-    WARNING_QUIET: InteractionReplyOptions
-    ERROR: InteractionReplyOptions
-    ERROR_QUIET: InteractionReplyOptions
-}
+import { Track, Queue } from "discord-player";
+import { EmbedBuilder, InteractionReplyOptions } from "discord.js";
+import { GeneralReply, embedReply, embedMessage } from "./Common";
 
 class PlayerMessageImpl implements GeneralReply {
     get CONFIRM() {
@@ -97,7 +45,7 @@ class PlayerMessageImpl implements GeneralReply {
         return embedMessage("PLACEHOLDER Added " + tracks.length + " tracks.", "Grey");
     }
 
-    ADDED_PLAYLIST(playlist: Playlist) {
+    ADDED_PLAYLIST() {
         return embedMessage("PLACEHOLDER Added playlist", "Grey");
     }
 
@@ -170,7 +118,7 @@ class PlayerMessageImpl implements GeneralReply {
     }
 
     get USER_NOT_IN_VOICE() {
-        return embedReply("Youre not in a voice channel", "Red", true);
+        return embedReply("You're not in a voice channel", "Red", true);
     }
 
     get INVALID_OPERATION() {
@@ -186,15 +134,3 @@ class PlayerMessageImpl implements GeneralReply {
     }
 }
 export const PlayerMessage = new PlayerMessageImpl();
-
-function embedMessage(message: string, color?: ColorResolvable): { embeds: (JSONEncodable<APIEmbed> | APIEmbed)[] } {
-    const e = new EmbedBuilder().setDescription(message);
-    if (color) e.setColor(color);
-    return { embeds: [e] }
-}
-
-function embedReply(message: string, color?: ColorResolvable, ephemeral?: boolean): InteractionReplyOptions {
-    const e: InteractionReplyOptions = embedMessage(message, color);
-    e.ephemeral = ephemeral;
-    return e;
-}

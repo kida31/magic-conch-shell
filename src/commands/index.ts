@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { logger as parentLogger } from "../common/logger";
+import { logger as parentLogger } from "../common/Logger";
 import { Command, isCommand, SlashCommand, UserContextMenuCommand } from "./Command";
 
 
@@ -13,7 +13,7 @@ const _cache: { [key: string]: any[] } = {}
 
 
 function _loadAll(dir: string) {
-    logger.notice("Collecting commands in " + dir);
+    logger.info("Collecting commands in " + dir);
 
     function readDir(dir: string): Command[] {
         const commands: Command[] = []
@@ -27,9 +27,9 @@ function _loadAll(dir: string) {
                     cmd = cmd.default ?? cmd;
                     if (isCommand(cmd)) {
                         commands.push(cmd);
-                        logger.notice(`Collected command in '${filename}'`)
+                        logger.info(`Found command in '${filename}'`)
                     } else {
-                        logger.info(`Not a command '${filename}'`);
+                        logger.debug(`No command in '${filename}'`);
                     }
                 } catch (e) {
                     logger.warning(`Failed to read '${file}'`);
