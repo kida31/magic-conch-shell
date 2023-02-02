@@ -1,14 +1,11 @@
-import { MusicCommandBuilder } from "../../utils/CommandBuilder/MusicCommandBuilder";
-import { MusicContext } from "../../applets/MusicContext";
-import { PlayerMessage } from "../../../src/messages/GenericResponses";
+import { NowPlayingCommand } from "../../templates/Music";
+import { SlashCommandBuilder } from "discord.js";
 
-export default new MusicCommandBuilder("nowplaying", "Show currently played track")
-    .addFunction(async (interaction) => {
-        const music = new MusicContext(interaction);
-        if (!!music.nowPlaying) {
-            await interaction.reply(PlayerMessage.NOW_PLAYING(music.queue));
-        } else {
-            await interaction.reply(PlayerMessage.QUEUE_EMPTY);
-        }
-    })
-    .build();
+
+class SlashNowPlayingCommand extends NowPlayingCommand {
+    data = new SlashCommandBuilder()
+        .setName("nowplaying")
+        .setDescription("Show currently played track");
+}
+
+export default new SlashNowPlayingCommand();

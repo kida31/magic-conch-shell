@@ -1,12 +1,11 @@
-import { MusicCommandBuilder } from "../../utils/CommandBuilder/MusicCommandBuilder";
-import { MusicContext } from "../../applets/MusicContext";
-import { PlayerMessage } from "../../../src/messages/GenericResponses";
+import { ShuffleCommand } from "../../templates/Music";
+import { SlashCommandBuilder } from "discord.js";
 
-export default new MusicCommandBuilder("shuffle", "Shuffle all queued songs")
-    .addFunction(async (interaction) => {
-        const music = new MusicContext(interaction);
-        await music.skip();
-        await interaction.reply(PlayerMessage.SHUFFLED);
-    })
-    .build();
 
+class SlashShuffleCommand extends ShuffleCommand {
+    data = new SlashCommandBuilder()
+        .setName("shuffle")
+        .setDescription("Shuffle all queued songs");
+}
+
+export default new SlashShuffleCommand();

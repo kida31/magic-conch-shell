@@ -1,8 +1,10 @@
 import {
   APIApplicationCommandSubcommandOption,
+  CacheType,
   ChatInputCommandInteraction,
   CommandInteraction,
   ContextMenuCommandBuilder,
+  Interaction,
   InteractionType,
   MessageContextMenuCommandInteraction,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
@@ -19,10 +21,15 @@ export type SlashCommandData = SlashCommandBuilder | SlashCommandSubcommandBuild
 export type ContextMenuCommandData = ContextMenuCommandBuilder
 export type CommandData = SlashCommandData | ContextMenuCommandData;
 
-export type CommandExecute = (interaction: CommandInteraction) => Promise<void>
+export type CommandExecute = (interaction: Interaction<CacheType>) => Promise<void>
 export type CommandResolve = (interaction: StringSelectMenuInteraction) => Promise<void>;
 
 export interface Command {
+  meta?: {
+    name?: string,
+    description?: string,
+    category?: string
+  }
   data: CommandData
   execute: CommandExecute;
 }

@@ -1,4 +1,3 @@
-
 export interface SearchOptions {
     q: string,
     client_key?: string,

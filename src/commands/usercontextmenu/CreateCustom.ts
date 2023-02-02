@@ -5,21 +5,22 @@ import {
     Interaction,
     ModalBuilder,
     ModalSubmitInteraction,
+    SlashCommandBuilder,
     TextInputBuilder,
     TextInputStyle,
-    UserSelectMenuBuilder
+    User
 } from "discord.js";
 
-import { doSomethingToTarget } from "../../utils/CommandBuilder/GifCommandBuilder";
 import { logger as parentLogger } from "../../common/logger";
+import { UserContextMenuCommand } from "../Command";
+import { GifMessageCommand } from "../templates/GifMessage";
 
-const logger = parentLogger.child({ label: "command:custom-message" });
-
+const logger = parentLogger.child({ label: "command:custom-gif" });
 const customId = (suffix?: string) => "custom-message" + suffix ? ("-" + suffix) : "";
 
 export default {
     data: new ContextMenuCommandBuilder()
-        .setName("more...")
+        .setName("other...")
         .setType(ApplicationCommandType.User),
     async execute(interaction: Interaction) {
         if (!interaction.isUserContextMenuCommand()) return;
@@ -37,8 +38,8 @@ export default {
 
         const messageInput = new TextInputBuilder()
             .setCustomId(customId("message"))
-            .setLabel("Displayed message (??? = Placeholder)")
-            .setValue("??? got slapped hard. (Use ??? as a placeholder for your target)")
+            .setLabel("Displayed message")
+            .setPlaceholder("ACTOR slapped TARGET")
             .setStyle(TextInputStyle.Paragraph)
             .setRequired(false);
 
@@ -55,16 +56,23 @@ export default {
                 logger.notice("I got something", submitInteraction);
 
                 const target = interaction.targetUser;
-                const message = submitInteraction.fields.getTextInputValue(customId("message")).replaceAll("???", target.toString())
+                const message = submitInteraction.fields.getTextInputValue(customId("message"))
+                    .replaceAll("ACTOR", submitInteraction.user.username)
+                    .replaceAll("TARGET", target.username);
 
-                await doSomethingToTarget({
-                    interaction: submitInteraction,
-                    gifQuery: submitInteraction.fields.getTextInputValue(customId("query")),
-                    message: message,
-                    mention: target
-                });
+                class CustomGifMessage extends GifMessageCommand {
+                    getParameters() {
+                        return {
+                            query: submitInteraction.fields.getTextInputValue(customId("query")),
+                            message: message,
+                            target: target
+                        }
+                    }
+                    data = new SlashCommandBuilder();
+                }
+
+                await new CustomGifMessage().execute(submitInteraction);
             })
             .catch(err => logger.warning("Custom Message failed", err))
     }
-}
-
+} as UserContextMenuCommand

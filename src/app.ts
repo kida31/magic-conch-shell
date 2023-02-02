@@ -1,12 +1,15 @@
 import { Client, ContextMenuCommandBuilder, Events, GatewayIntentBits, GuildMember, RESTPostAPIContextMenuApplicationCommandsJSONBody } from "discord.js";
-import { Command } from "./commands/Command";
-import { logger } from "./common/logger";
+import { Command, SlashCommand, UserContextMenuCommand } from "./commands/Command";
+import { logger as parent } from "./common/logger";
 import * as dotenv from "dotenv";
 import { CommandCollection } from "./commands";
 import { MusicContext } from "./applets/MusicContext";
 import { Queue, StreamDispatcher } from "discord-player";
 import { PlayerMessage } from "./messages/GenericResponses";
 import { deployData } from "./CommandDeployer";
+
+/** LOGGING */
+const logger = parent.child({ label: "App" })
 
 /** ENVIRONMENT VARIABLES */
 dotenv.config();
@@ -18,9 +21,25 @@ const noLogin = argv.includes("--dry");
 const doDeploy = argv.includes("--deploy");
 
 /** COMMANDS */
+const commands = {
+    slash: new Map<string, SlashCommand>(),
+    context: new Map<string, UserContextMenuCommand>(),
+    get size(): number {
+        return this.slash.size + this.context.size;
+    }
+}
 
-const commands: Map<string, Command> = new Map();
-CommandCollection.getAll().forEach(cmd => commands.set(cmd.data.name, cmd));
+CommandCollection.getAllSlashCommands().forEach((cmd, idx) => {
+    if (cmd.data.name in commands.slash) logger.warning("DUPLICATE COMMAND")
+    commands.slash.set(cmd.data.name, cmd);
+    logger.notice(`Registered #${idx} (/)${cmd.data.name}`);
+});
+
+CommandCollection.getAllUserContextMenuCommands().forEach((cmd, idx) => {
+    if (cmd.data.name in commands.context) logger.warning("DUPLICATE COMMAND")
+    commands.context.set(cmd.data.name, cmd);
+    logger.notice(`Registered #${idx} (App>)${cmd.data.name}`);
+})
 
 /** CREATE CLIENT */
 const client = new Client({
@@ -32,7 +51,7 @@ const client = new Client({
 });
 
 /** LOGGING */
-client.on(Events.ClientReady, (_c) => { logger.info(`The bot is online with ${commands.values.length} commands!`) });
+client.on(Events.ClientReady, (_c) => { logger.info(`The bot is online with ${commands.size} commands!`) });
 client.once(Events.ClientReady, (c) => { logger.info(`Ready! Logged in as ${c.user.tag}`) });
 client.on(Events.Debug, (s) => { logger.debug(s) });
 client.on(Events.Warn, (s) => { logger.warning(s) });
@@ -78,7 +97,7 @@ client.on(Events.InteractionCreate, (m) => { logger.debug(m) });
 client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
-    const command = commands.get(interaction.commandName);
+    const command = commands.slash.get(interaction.commandName);
 
     if (!command) {
         logger.error(`No command matching ${interaction.commandName} was found.`);
@@ -109,11 +128,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
-// UserContextMenuC
+// UserContextMenu
 client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isCommand()) return;
     if (!interaction.isUserContextMenuCommand()) return;
-    commands.get(interaction.commandName)?.execute(interaction);
+    commands.context.get(interaction.commandName)?.execute(interaction);
 })
 
 /** DEPLOY COMMANDS */

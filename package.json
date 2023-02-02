@@ -2,12 +2,13 @@
   "name": "magicconch",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js",
+  "main": "src/app.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node src/app.ts",
     "dev": "nodemon src/app.ts",
     "sandbox": "nodemon src/sandbox.ts",
+    "out": "nodemon outsidebox.ts",
     "deploy": "ts-node src/app.ts --dry --deploy"
   },
   "keywords": [],
@@ -28,6 +29,8 @@
   "devDependencies": {
     "@types/node": "^18.11.18",
     "nodemon": "^2.0.20",
+    "source-map-support": "^0.4.3",
+    "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1"
   }
 }

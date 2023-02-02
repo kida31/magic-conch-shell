@@ -2,10 +2,10 @@ import { StopCommand } from "../../templates/Music";
 import { SlashCommandBuilder } from "discord.js";
 
 
-class SlashStopCommand extends StopCommand {
+class SlashLeaveCommand extends StopCommand {
     data = new SlashCommandBuilder()
-        .setName("stop")
+        .setName("leave")
         .setDescription("Stop music play");
 }
 
-export default new SlashStopCommand();
+export default new SlashLeaveCommand();

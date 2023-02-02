@@ -1,18 +1,19 @@
-import { SlashCommandBuilder } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
 import { logger as parentLogger } from "../common/logger";
-import { SlashCommand, UserContextMenuCommand, Command, isCommand, SlashCommandData } from "./Command";
+import { Command, isCommand, SlashCommand, UserContextMenuCommand } from "./Command";
 
-let logger = parentLogger.child({ label: "CommandCollector" })
+
+let logger = parentLogger.child({ label: "CommandIndex" })
 
 const ROOT_DIR = __dirname;
+const SLASH_DIR = ROOT_DIR + "/slash";
+const CTX_DIR = ROOT_DIR + "/usercontextmenu";
+const _cache: { [key: string]: any[] } = {}
 
-const commands_cache: Command[] = [];
 
 function _loadAll(dir: string) {
-    logger.notice("Collecting commands...");
-
+    logger.notice("Collecting commands in " + dir);
 
     function readDir(dir: string): Command[] {
         const commands: Command[] = []
@@ -47,19 +48,25 @@ function _loadAll(dir: string) {
     return readDir(dir);
 }
 
+function loadAndCache(dir: string): any[] {
+    if (!_cache[dir]) _cache[dir] = _loadAll(dir);
+    return _cache[dir];
+}
+
 export const CommandCollection = {
     getAll(): Command[] {
-        if (commands_cache.length == 0) {
-            commands_cache.push(..._loadAll(ROOT_DIR));
-        }
-        return commands_cache;
+        return loadAndCache(ROOT_DIR);
     },
+
     getAllJson() {
         return this.getAll().map(cmd => cmd.data.toJSON());
     },
-    getSlashCommands() {
-        // this.getAll().forEach(c => console.log())
-        type keys = keyof SlashCommand;
-        console.log(keys);
-    }
+
+    getAllSlashCommands: function (): SlashCommand[] {
+        return loadAndCache(SLASH_DIR);
+    },
+
+    getAllUserContextMenuCommands: function (): UserContextMenuCommand[] {
+        return loadAndCache(CTX_DIR);
+    },
 }

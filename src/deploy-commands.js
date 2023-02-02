@@ -1,11 +1,13 @@
 import { REST, Routes } from "discord.js";
 import fs from "node:fs";
+import { deprecate } from "node:util";
 // import * as dotenv from "dotenv";
 // dotenv.config();
 
 const { CLIENT_ID: clientId, GUILD_ID: guildId, TOKEN: token } = process.env;
 
-async function deployCommandArray(jsonData) {
+@deprecate
+  async function deployCommandArray(jsonData) {
   const rest = new REST({ version: "10" }).setToken(token);
 
   await (async () => {

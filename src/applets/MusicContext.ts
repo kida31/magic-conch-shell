@@ -1,15 +1,15 @@
-import { Player, PlayerSearchResult, QueryType, Queue, SearchOptions, Track } from "discord-player";
-import { ChatInputCommandInteraction, CacheType, Client, TextBasedChannel, ChannelType, TextChannel, CommandInteraction } from "discord.js";
+import { Player, PlayerSearchResult, QueryType, Queue, Track } from "discord-player";
+import { ChannelType, Client, CommandInteraction, TextChannel } from "discord.js";
 import { logger as parentLogger } from "../common/logger";
 
 const logger = parentLogger.child({ label: "MusicContext" })
-type localInteractionType = CommandInteraction;
+type _InteractionType = CommandInteraction;
 
 export class MusicContext {
     private static _player: Player
     static queueIdToTextChannel: Map<string, TextChannel> = new Map();
 
-    interaction: localInteractionType
+    interaction: _InteractionType
     _queue: Queue
 
     static get player(): Player {
@@ -38,7 +38,7 @@ export class MusicContext {
         return channel;
     }
 
-    constructor(interaction: localInteractionType) {
+    constructor(interaction: _InteractionType) {
         this.interaction = interaction;
         const queueUndefined = this.player.getQueue(interaction.guild!)
         if (queueUndefined) {

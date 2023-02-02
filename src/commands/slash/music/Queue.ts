@@ -1,12 +1,11 @@
-import { MusicCommandBuilder } from "../../utils/CommandBuilder/MusicCommandBuilder";
-import { MusicContext } from "../../applets/MusicContext";
-import { PlayerMessage } from "../../../src/messages/GenericResponses";
-import { EmbedBuilder } from "@discordjs/builders";
+import { QueueCommand } from "../../templates/Music";
+import { SlashCommandBuilder } from "discord.js";
 
-export default new MusicCommandBuilder("queue", "Show tracks in current queue")
-    .addFunction(async (interaction) => {
-        const music = new MusicContext(interaction);
-        await interaction.reply(PlayerMessage.QUEUED_TRACKS(music.queue));
-    })
-    .build();
 
+class SlashQueueCommand extends QueueCommand {
+    data = new SlashCommandBuilder()
+        .setName("queue")
+        .setDescription("Show tracks in current queue");
+}
+
+export default new SlashQueueCommand();
