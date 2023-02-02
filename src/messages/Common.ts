@@ -1,16 +1,9 @@
 import {
-    ActionRowData,
-    APIActionRowComponent,
     APIEmbed,
-    APIMessageActionRowComponent,
-    CacheType,
     ColorResolvable,
     EmbedBuilder,
-    Interaction,
     InteractionReplyOptions,
-    JSONEncodable,
-    MessageActionRowComponentBuilder,
-    MessageActionRowComponentData
+    JSONEncodable
 } from "discord.js";
 
 
@@ -28,26 +21,33 @@ export const GenericReply = {
     get CONFIRM() {
         return { content: ":white_check_mark:" }
     },
-
     get CONFIRM_QUIET() {
         return embedReply(":white_check_mark:", "Green", true);
     },
-
     get WARNING() {
         return { content: ":warning:" }
     },
-
     get WARNING_QUIET() {
         return embedReply(":warning:", "Yellow", true);
     },
-
     get ERROR() {
         return { content: ":no_entry_sign:" }
     },
-
     get ERROR_QUIET() {
         return embedReply(":no_entry_sign:", "Red", true);
     }
+}
+
+export const GenericMessage = {
+    get CONFIRM() {
+        return { content: ":white_check_mark:" }
+    },
+    get WARNING() {
+        return { content: ":warning:" }
+    },
+    get ERROR() {
+        return { content: ":no_entry_sign:" }
+    },
 }
 
 export function embedMessage(message: string, color?: ColorResolvable): { embeds: (JSONEncodable<APIEmbed> | APIEmbed)[] } {

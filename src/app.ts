@@ -1,15 +1,15 @@
 import { Queue, StreamDispatcher } from "discord-player";
-import { Client, Events, GatewayIntentBits, GuildMember, InteractionCollector } from "discord.js";
+import { Client, Events, GatewayIntentBits, GuildMember } from "discord.js";
 import * as dotenv from "dotenv";
 import { MusicContext } from "./applets/MusicContext";
+import { conch } from "./applets/OpenAI/MagicConchShell";
 import { deployData } from "./CommandDeployer";
 import { CommandCollection } from "./commands";
 import { Command, SlashCommand, UserContextMenuCommand } from "./commands/Command";
 import { logger as parent } from "./common/Logger";
+import { GenericReply } from "./messages/Common";
 import { PlayerMessage } from "./messages/Music";
-import { conch } from "./applets/OpenAI/MagicConchShell";
 
-parent.level = "trace"
 /** LOGGING */
 const logger = parent.child({ label: "App" })
 
@@ -144,6 +144,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 client.on('messageCreate', async (message) => {
+    if (message.content.length > 500) {
+        await message.reply(GenericReply.WARNING);
+        return;
+    }
     if (message.author.id == message.client.user.id) return;
     logger.log("trace", "Observed a message: " + message.content.substring(0, 30) + "...")
     if (!message.mentions.has(message.client.user)) return;

@@ -60,6 +60,9 @@ export class MagicConchShell {
             username = message.user;
         }
 
+        // FIXME
+        quotedQuestion = quotedQuestion.substring(0, 300);
+
         const random = async (question: string, user: string): Promise<string> => {
             if (Math.random() < 0.1) {
                 const prompt = [question, "Answer eloquently and poetically with 150 words."].join("\n");

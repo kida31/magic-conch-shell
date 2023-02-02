@@ -1,7 +1,7 @@
 import { CommandInteraction, StringSelectMenuInteraction } from "discord.js";
 import { addColors, createLogger, format, transports } from "winston";
 
-const LOG_LEVEL = "info";
+const LOG_LEVEL = "trace";
 
 const customLevels = {
     levels: {
@@ -59,6 +59,7 @@ const logger = createLogger({
     levels: customLevels.levels,
     transports: [
         new transports.Console({
+            level: "debug",
             format: format.combine(
                 format.json(),
                 format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
