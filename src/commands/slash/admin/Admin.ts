@@ -4,6 +4,7 @@ import { CommandExecute, SlashCommand, SlashCommandData } from "../../Command";
 import { logger as parent } from "../../../common/Logger";
 import { GenericReply } from "../../../messages/Common";
 import { MusicContext } from "../../../applets/MusicContext";
+import { conch, MagicConchShell } from "../../../applets/OpenAI/MagicConchShell";
 
 const logger = parent.child({ label: "admin" })
 
@@ -30,7 +31,19 @@ class AdminCommand implements SlashCommand {
                         { name: "Idle", value: "idle" },
                         { name: "Do not disturb", value: "dnd" },
                         { name: "Invisible", value: "invisible" },
-                    )));
+                    )))
+        .addSubcommand(subcommand => subcommand
+            .setName("model")
+            .setDescription("Get or set the current AI model")
+            .addStringOption(option => option
+                .setName("modelid")
+                .setDescription("OpenAi's ChatGPT models")
+                .addChoices(
+                    { name: "text-babbage-001", value: "text-babbage-001" },
+                    { name: "text-curie-001", value: "text-curie-001" },
+                    { name: "text-ada-001", value: "text-ada-001" },
+                )));
+
     async execute(interaction: Interaction<CacheType>) {
         if (!interaction.isChatInputCommand()) return;
 
@@ -40,7 +53,8 @@ class AdminCommand implements SlashCommand {
             await name(interaction);
         } else if (interaction.options.getSubcommand() == "status") {
             await status(interaction);
-        } else if (interaction.options.getSubcommand() == "name") {
+        } else if (interaction.options.getSubcommand() == "model") {
+            await model(interaction);
         } else if (interaction.options.getSubcommand() == "name") {
         } else if (interaction.options.getSubcommand() == "name") {
         }
@@ -78,9 +92,10 @@ const status: SubFunc = async function (interaction) {
         let info: Map<string, string> = new Map();
         const musicplayer = new MusicContext(interaction);
 
-        info.set("Status", interaction.client.user.presence.status);
-        info.set("Music playing", "" + musicplayer.queue.playing);
-        info.set("Volume", "" + musicplayer.queue.volume);
+        info.set("status", interaction.client.user.presence.status);
+        info.set("music_playing", "" + musicplayer.queue.playing);
+        info.set("volume", "" + musicplayer.queue.volume);
+        info.set("ai model", conch.default_model);
 
         const text = Array
             .from(info.entries())
@@ -89,6 +104,16 @@ const status: SubFunc = async function (interaction) {
 
         logger.warning(text + info.size,);
         await interaction.reply({ ephemeral: true, content: "```\n" + text + "\n```" });
+    }
+}
+
+const model: SubFunc = async function (interaction) {
+    const m = interaction.options.getString("modelid") ?? null;
+    if (m) {
+        conch.default_model = m;
+        await interaction.reply({ ephemeral: true, content: `Now using \`${conch.default_model}\`` })
+    } else {
+        await interaction.reply({ ephemeral: true, content: `Currently using \`${conch.default_model}\`` })
     }
 }
 
