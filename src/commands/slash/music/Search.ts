@@ -1,6 +1,6 @@
 import { CacheType, Interaction } from "discord.js";
 import { QueryType } from "discord-player";
-import { CommandData } from "../../Command";
+import { CommandData } from "../../command";
 import { DataBuilder, SearchCommand } from "../../templates/Music";
 
 

@@ -12,9 +12,9 @@ import {
     SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction
 } from "discord.js";
 import { MusicContext } from "../../applets/MusicContext";
-import { logger as parent, safeStringify } from "../../common/Logger";
+import { logger as parent, safeStringify } from "../../common/logger";
 import { PlayerMessage } from "../../messages/Music";
-import { Command, CommandData, isCommand } from "../Command";
+import { Command, CommandData, isCommand } from "../command";
 
 const logger = parent.child({ label: "command:music" });
 
@@ -220,17 +220,17 @@ export abstract class SearchCommand implements Command {
                 const selectedTracks = res.values
                     .map(id => result.tracks.find(t => t.id == id))
                     .filter((t: discordPlayer.Track | undefined): t is discordPlayer.Track => !!t);
-                musicbot.addTracks(selectedTracks);
+                await musicbot.addTracks(selectedTracks);
             } else if (res.customId == "search-all") {
-                musicbot.addTracks(result.tracks);
+                await musicbot.addTracks(result.tracks);
             }
-        }).catch(async (err: Error) => {
-            if ("code" in err && err.code == DiscordjsErrorCodes.InteractionCollectorError) {
+        }).catch(async (reason) => {
+            if (!!reason.code && reason.code == DiscordjsErrorCodes.InteractionCollectorError) {
                 logger.info({ message: "Interaction expired", id: interaction.id });
                 return;
             }
-            logger.warning(err.message);
-            logger.error(err.stack ?? "", err);
+            logger.warning(reason.message);
+            logger.error(reason.stack ?? "", reason);
         })
     }
 }

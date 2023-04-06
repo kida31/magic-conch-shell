@@ -1,7 +1,7 @@
 import { StopCommand } from "../../templates/Music";
 import { CacheType, ChatInputCommandInteraction, ClientPresence, Interaction, Presence, PresenceStatusData, PresenceUpdateStatus, SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "discord.js";
-import { CommandExecute, SlashCommand, SlashCommandData } from "../../Command";
-import { logger as parent } from "../../../common/Logger";
+import { CommandExecute, SlashCommand, SlashCommandData } from "../../command";
+import { logger as parent } from "../../../common/logger";
 import { GenericReply } from "../../../messages/Common";
 import { MusicContext } from "../../../applets/MusicContext";
 import { conch, MagicConchShell } from "../../../applets/OpenAI/MagicConchShell";

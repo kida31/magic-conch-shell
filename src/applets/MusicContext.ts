@@ -1,6 +1,6 @@
 import { Player, PlayerSearchResult, QueryType, Queue, Track } from "discord-player";
 import { ChannelType, Client, CommandInteraction, TextChannel } from "discord.js";
-import { logger as parentLogger } from "../common/Logger";
+import { logger as parentLogger } from "../common/logger";
 import { inspect } from "node:util";
 const logger = parentLogger.child({ label: "MusicContext" })
 type _InteractionType = CommandInteraction;
@@ -10,7 +10,7 @@ export class MusicContext {
     static queueIdToTextChannel: Map<string, TextChannel> = new Map();
 
     interaction: _InteractionType
-    private _queue: Queue
+    private readonly _queue: Queue
 
     static get player(): Player {
         return this._player;

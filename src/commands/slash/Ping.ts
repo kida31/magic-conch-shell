@@ -3,7 +3,7 @@ import {
     Interaction,
     SlashCommandBuilder
 } from "discord.js";
-import { SlashCommand } from "../Command";
+import { SlashCommand } from "../command";
 
 
 class SlashPingCommand implements SlashCommand {

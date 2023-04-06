@@ -1,6 +1,6 @@
 
 import * as dotenv from "dotenv";
-import { logger as parent, safeStringify, toObject } from "../../common/Logger";
+import { logger as parent, safeStringify, toObject } from "../../common/logger";
 import { Configuration, CreateCompletionRequest, ListModelsResponse, OpenAIApi } from "openai";
 import { AxiosResponse } from "axios";
 import { Message, quote } from "discord.js";
@@ -50,12 +50,12 @@ export class MagicConchShell {
         return res.data.choices[0].text!;
     }
 
-    public async ask(message: Message<boolean> | { text: string, user: string }) {
+    public async ask(message: Message | { text: string, user: string }) {
         try {
             let quotedQuestion: string
             let username: string;
 
-            if (message instanceof Message<boolean>) {
+            if (message instanceof Message) {
                 quotedQuestion = `"${message.content.replaceAll(message.client.user.toString(), "").trim()}"`;
                 username = message.author.username;
             } else {

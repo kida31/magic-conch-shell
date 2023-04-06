@@ -9,8 +9,8 @@ import {
     User
 } from "discord.js";
 import { quickRandomSearch } from "../../applets/Tenor/Tenor";
-import { logger as parentLogger } from "../../common/Logger";
-import { Command, CommandData } from "../Command";
+import { logger as parentLogger } from "../../common/logger";
+import { Command, CommandData } from "../command";
 
 const logger = parentLogger.child({ label: "GifCommandBuilder" });
 

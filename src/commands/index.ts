@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import { logger as parentLogger } from "../common/Logger";
-import { Command, isCommand, SlashCommand, UserContextMenuCommand } from "./Command";
+import { logger as parentLogger } from "../common/logger";
+import { Command, isCommand, SlashCommand, UserContextMenuCommand } from "./command";
 
 
 let logger = parentLogger.child({ label: "CommandIndex" })

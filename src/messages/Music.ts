@@ -1,6 +1,6 @@
 import { Track, Queue } from "discord-player";
 import { EmbedBuilder, InteractionReplyOptions } from "discord.js";
-import { logger } from "../common/Logger";
+import { logger } from "../common/logger";
 import { GeneralReply, embedReply, embedMessage } from "./Common";
 
 class PlayerMessageImpl implements GeneralReply {

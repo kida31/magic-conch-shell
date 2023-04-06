@@ -1,12 +1,12 @@
 import { Queue, StreamDispatcher } from "discord-player";
-import { Client, Events, GatewayIntentBits, GuildMember } from "discord.js";
+import {Client, DMChannel, Events, GatewayIntentBits, GuildMember} from "discord.js";
 import * as dotenv from "dotenv";
 import { MusicContext } from "./applets/MusicContext";
 import { conch } from "./applets/OpenAI/MagicConchShell";
-import { deployData } from "./CommandDeployer";
+import { deployData } from "./deployment";
 import { CommandCollection } from "./commands";
-import { Command, SlashCommand, UserContextMenuCommand } from "./commands/Command";
-import { logger as parent } from "./common/Logger";
+import { Command, SlashCommand, UserContextMenuCommand } from "./commands/command";
+import { logger as parent } from "./common/logger";
 import { GenericReply } from "./messages/Common";
 import { PlayerMessage } from "./messages/Music";
 
@@ -63,7 +63,6 @@ client.on(Events.Debug, (s) => { logger.debug(s) });
 client.on(Events.Warn, (s) => { logger.warning(s) });
 client.on(Events.Error, (e) => { logger.error(e.stack) });
 client.on(Events.InteractionCreate, (m) => { logger.debug(m) });
-
 
 /** SET UP SERVICES  && Logging*/
 {
@@ -153,7 +152,6 @@ client.on('messageCreate', async (message) => {
     if (!message.mentions.has(message.client.user)) return;
 
     if (message.content.length > 500) {
-        message.client
         await message.reply(GenericReply.WARNING);
         return;
     }
@@ -164,7 +162,6 @@ client.on('messageCreate', async (message) => {
     const newMessage = { content: res == "" ? "Ask me later." : res };
     logger.info("Bot Message:", newMessage)
     await message.reply(newMessage);
-
 })
 
 /** DEPLOY COMMANDS */
