@@ -1,9 +1,7 @@
-import { StopCommand } from "../../templates/Music";
 import { CacheType, ChatInputCommandInteraction, ClientPresence, Interaction, Presence, PresenceStatusData, PresenceUpdateStatus, SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "discord.js";
 import { CommandExecute, SlashCommand, SlashCommandData } from "../../command";
 import { logger as parent } from "../../../common/logger";
 import { GenericReply } from "../../../messages/Common";
-import { MusicContext } from "../../../applets/MusicContext";
 import { conch, MagicConchShell } from "../../../applets/OpenAI/MagicConchShell";
 
 const logger = parent.child({ label: "admin" })
@@ -91,11 +89,8 @@ const status: SubFunc = async function (interaction) {
         await interaction.reply(GenericReply.CONFIRM_QUIET);
     } else {
         let info: Map<string, string> = new Map();
-        const musicplayer = new MusicContext(interaction);
 
         info.set("status", interaction.client.user.presence.status);
-        info.set("music_playing", "" + musicplayer.queue.playing);
-        info.set("volume", "" + musicplayer.queue.volume);
         info.set("ai model", conch.default_model);
 
         const text = Array

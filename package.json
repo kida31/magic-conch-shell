@@ -15,19 +15,23 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.8.0",
+    "@discordjs/opus": "^0.9.0",
+    "opusscript": "^0.0.8",
     "@discordjs/rest": "^1.7.0",
     "@discordjs/voice": "^0.14.0",
     "discord-api-types": "^0.37.37",
-    "discord-player": "^5.3.2",
+    "@discord-player/extractor": "^4.1.2",
+    "discord-player": "^6.1.1",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "ffmpeg-static": "^5.1.0",
     "node-fetch": "^3.3.0",
     "openai": "^3.1.0",
     "pino": "^7.0.0-rc.9",
+    "play-dl": "^1.9.6",
     "undici": "^5.14.0",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "ytdl-core": "^4.11.3"
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
