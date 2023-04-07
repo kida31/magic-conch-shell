@@ -96,7 +96,12 @@ export const SillyChatBot: ChatBot = createChatBot(OPENAI_KEY, {
 
 
 export const CustomAIBot: ChatBot = createChatBot(OPENAI_KEY, {
-    systemMeta: pretendToBe("Jesus").from("the Bible"),
+    systemMeta: pretendToBe("Chitoge Kirisaki").from("Nisekoi"),
+    historyLimit: 2
+});
+
+export const SaintBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("Jesus").from("the Bible") + "You have grown accustomed to modern society with its trends and technology. You're a social media enthusiast and have a million followers on tiktok and twitch for doing pranks",
     historyLimit: 1
 });
 
