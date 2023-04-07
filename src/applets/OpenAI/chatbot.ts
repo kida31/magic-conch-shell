@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi, ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from "openai";
 import { ChatBot } from "../interfaces";
 import * as dotenv from "dotenv";
-import { logger } from "../../common/logger";
+import { ChildLogger } from "../../common/logger";
 
 dotenv.config();
 const { OPENAI_KEY } = process.env;
@@ -25,6 +25,8 @@ const ChatMessage = {
 }
 
 export function createChatBot(key: string, options?: BotOption): ChatBot {
+    const logger = ChildLogger("ChatBot");
+    
     const openAiApi: OpenAIApi = new OpenAIApi(new Configuration({ apiKey: key }));
     let history: ChatCompletionRequestMessage[] = [];
 
@@ -42,19 +44,19 @@ export function createChatBot(key: string, options?: BotOption): ChatBot {
     }
 
     async function read(text: string, username?: string): Promise<void> {
+        logger.info(`Read "${text}" - ${username}`);
         addToHistory(ChatMessage.asUser(text, username));
     }
 
     async function chat(text: string, username?: string): Promise<string | undefined> {
-        const newMessage = ChatMessage.asUser(text, username);
-        addToHistory(newMessage);
+        await read(text, username);
 
         const messages = [];
         if (options?.systemMeta) {
             messages.push(ChatMessage.asSystem(options.systemMeta));
         }
         messages.push(...history);
-        console.log(messages);
+        logger.log("trace", messages);
 
         try {
             const httpResponse = await openAiApi.createChatCompletion({
@@ -90,7 +92,7 @@ export const SillyChatBot: ChatBot = createChatBot(OPENAI_KEY, {
     historyLimit: 5
 });
 
-export const ChatGptTurbo: ChatBot = createChatBot(OPENAI_KEY, {
+export const CustomAIBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: "You are an AI made by Tony Stark from the Marvel comics",
     historyLimit: 5
 });

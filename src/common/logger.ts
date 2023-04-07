@@ -1,5 +1,5 @@
 import { CommandInteraction, StringSelectMenuInteraction } from "discord.js";
-import { addColors, createLogger, format, transports } from "winston";
+import { addColors, createLogger, format, transports, Logger } from "winston";
 
 const LOG_LEVEL = "trace";
 
@@ -94,7 +94,16 @@ const logger = createLogger({
     ]
 });
 
-export { logger };
+
+function LoggerWithLabel(label: string): Logger {
+    return logger.child({ label: label });
+}
+
+export {
+    logger,
+    LoggerWithLabel as ChildLogger
+};
+
 
 type LoggableInteraction = CommandInteraction | StringSelectMenuInteraction;
 interface InteractionLog {
