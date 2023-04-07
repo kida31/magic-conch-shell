@@ -69,4 +69,18 @@ Discord bot
 
 ---
 
+Funny
+- Agree
+- Bite
+- Boop
+- Cry
+- Hug
+- Kiss
+- Lick
+- Pat
+- Pickle
+- Punch
+- Slap
+- Roast
 
+---
