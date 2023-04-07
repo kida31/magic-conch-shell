@@ -1,7 +1,9 @@
 import { Configuration, OpenAIApi, ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from "openai";
 import { ChatBot } from "../interfaces";
-import * as dotenv from "dotenv";
 import { ChildLogger } from "../../common/logger";
+import { pretendToBe } from"./util";
+
+import * as dotenv from "dotenv";
 
 dotenv.config();
 const { OPENAI_KEY } = process.env;
@@ -26,13 +28,13 @@ const ChatMessage = {
 
 export function createChatBot(key: string, options?: BotOption): ChatBot {
     const logger = ChildLogger("ChatBot");
-    
+
     const openAiApi: OpenAIApi = new OpenAIApi(new Configuration({ apiKey: key }));
     let history: ChatCompletionRequestMessage[] = [];
 
     const MODEL = options?.model ?? "gpt-3.5-turbo";
     const HISTORY_LIMIT = (options?.historyLimit ?? 0) * 2;
-    const MAX_TOKENS = options?.max_tokens ?? 500;
+    const MAX_TOKENS = options?.max_tokens ?? 200;
 
     function addToHistory(msg: ChatCompletionRequestMessage) {
         if (HISTORY_LIMIT > 0) {
@@ -67,9 +69,9 @@ export function createChatBot(key: string, options?: BotOption): ChatBot {
             if (httpResponse.status != 200) {
                 throw new Error(`HTTPError {status=${httpResponse.status}, statusText:${httpResponse.statusText}`)
             }
-    
+
             const response: string = httpResponse.data.choices[0].message?.content ?? "";
-    
+
             // Save for later
             addToHistory(ChatMessage.asAssistant(response));
             return response;
@@ -89,12 +91,43 @@ export function createChatBot(key: string, options?: BotOption): ChatBot {
 
 export const SillyChatBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: "You are a person who loves making silly remarks.",
-    historyLimit: 5
+    historyLimit: 1
 });
 
+
 export const CustomAIBot: ChatBot = createChatBot(OPENAI_KEY, {
-    systemMeta: "You are an AI made by Tony Stark from the Marvel comics",
-    historyLimit: 5
+    systemMeta: pretendToBe("Jesus").from("the Bible"),
+    historyLimit: 1
+});
+
+export const JotaroBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("Jotaro Kujo").from("JoJo's Bizarre Adventure"),
+    historyLimit: 1
+});
+
+export const CatGirlBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("Keqing").from("Genshin Impact"),
+    historyLimit: 1
+});
+
+export const TsundereBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("Chitoge Kirisaki").from("Nisekoi"),
+    historyLimit: 1
+});
+
+export const SquidwardBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("Squidward").from("Spongebob Squarepants"),
+    historyLimit: 1
+});
+
+export const Jarvis: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("Jarvis").from("the Iron Man comics from marvel"),
+    historyLimit: 2
+});
+
+export const MagicConchShell: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretendToBe("the magic conch shell").from("Spongebob Squarepants, the TV show"),
+    historyLimit: 2
 });
 
 export const MagicEightBall: ChatBot = createChatBot(OPENAI_KEY, {

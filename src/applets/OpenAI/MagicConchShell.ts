@@ -3,6 +3,7 @@ import { Configuration, CreateCompletionRequest, ListModelsResponse, OpenAIApi }
 import { AxiosResponse } from "axios";
 import { Message, quote } from "discord.js";
 import * as dotenv from "dotenv";
+import { deprecate } from "util";
 
 dotenv.config();
 const { OPENAI_KEY } = process.env;
@@ -13,6 +14,7 @@ interface LimitedCreateCompletionRequest extends Omit<CreateCompletionRequest, "
     model?: "text-ada-001" | "text-babbage-001" | "text-curie-001" | "text-davinci-003"
 }
 
+// @deprecate
 export class MagicConchShell {
     api: OpenAIApi;
     default_model: string;

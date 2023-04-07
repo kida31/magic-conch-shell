@@ -213,8 +213,7 @@ function addEventListeners(client: ExtendedClient) {
             return;
         }
 
-        CustomAIBot.read(message.content);
-        SillyChatBot.read(message.content);
+        // CustomAIBot.read(message.content);
     })
 
     setupLogger.info("Added listeners to discord events");
