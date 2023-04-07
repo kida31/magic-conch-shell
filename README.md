@@ -69,7 +69,7 @@ Discord bot
 
 ---
 
-###Funny
+### Funny
 - Agree
 - Bite
 - Boop
