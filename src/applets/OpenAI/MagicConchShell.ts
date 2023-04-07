@@ -1,9 +1,8 @@
-
-import * as dotenv from "dotenv";
 import { logger as parent, safeStringify, toObject } from "../../common/logger";
 import { Configuration, CreateCompletionRequest, ListModelsResponse, OpenAIApi } from "openai";
 import { AxiosResponse } from "axios";
 import { Message, quote } from "discord.js";
+import * as dotenv from "dotenv";
 
 dotenv.config();
 const { OPENAI_KEY } = process.env;
