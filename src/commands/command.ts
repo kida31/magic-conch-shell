@@ -1,19 +1,13 @@
 import {
   APIApplicationCommandSubcommandOption,
   CacheType,
-  ChatInputCommandInteraction,
-  CommandInteraction,
   ContextMenuCommandBuilder,
   Interaction,
-  InteractionType,
-  MessageContextMenuCommandInteraction,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   RESTPostAPIContextMenuApplicationCommandsJSONBody,
   SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
   StringSelectMenuInteraction,
-  UserContextMenuCommandInteraction
 } from "discord.js";
 
 export type SlashCommandData = SlashCommandSubcommandsOnlyBuilder | Omit<SlashCommandBuilder, "addSubcommandGroup" | "addSubcommand">

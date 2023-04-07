@@ -1,5 +1,5 @@
 import { Player } from "discord-player";
-import {CacheType, Client, DMChannel, Events, GatewayIntentBits, GuildMember, Interaction, Message} from "discord.js";
+import {CacheType, Client, DMChannel, Events, GatewayIntentBits, GuildMember, Interaction, Message, VoiceBasedChannel} from "discord.js";
 import * as dotenv from "dotenv";
 import { conch } from "./applets/OpenAI/MagicConchShell";
 import { deployData } from "./deployment";
@@ -7,6 +7,8 @@ import { CommandCollection } from "./commands";
 import { Command, SlashCommand, UserContextMenuCommand } from "./commands/command";
 import { logger as parent } from "./common/logger";
 import { GenericReply } from "./messages/Common";
+import { ExtendedClient } from "./structure/extended-client";
+import { DiscordPlayer, MusicCommand } from "./logic/music";
 
 /** LOGGING */
 const logger = parent.child({ label: "App" })
@@ -44,7 +46,7 @@ const commands = {
 }
 
 /** CREATE CLIENT */
-const client = new Client({
+const client = new ExtendedClient({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildVoiceStates,
@@ -59,6 +61,8 @@ player.events.on('playerStart', (queue, track) => {
     // we will later define queue.metadata object while creating the queue
     console.log(`Started playing **${track.title}**!`);
 });
+
+
 
 async function execute(interaction: Message, q: string) {
     const channel = interaction.member!.voice.channel;
@@ -140,13 +144,45 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
+let PREFIX = "+";
+
 client.on('messageCreate', async (message) => {
     if (message.author.id == message.client.user.id) return;
     logger.log("trace", "Observed a message: " + message.content.substring(0, 30) + "...")
 
-    if (message.content.startsWith('+')) {
-        await execute(message, message.content.replace("+", ""));
+    if (message.content.startsWith(PREFIX)) {
+        const music: MusicCommand = new DiscordPlayer(message);
+        const channel: VoiceBasedChannel = message.member?.voice.channel!;
+
+        message.content = message.content.substring(1);
+        const removeIfStarts = (compare: string) => {
+            if (message.content.startsWith(compare)) {
+                message.content = message.content.replace(compare, "");
+                return true;
+            }
+            return false;
+        }
+
+        const formatSong = (s: any) => `${s.title} - ${s.author} (${s.duration})`
+
+        if (removeIfStarts("play")) {
+            await music.play(channel, message.content);
+        } else if (removeIfStarts("skip")) {
+            await music.skipSong();
+        } else if (removeIfStarts("stop")) {
+            await music.stop();
+        } else if (removeIfStarts("queue")) {
+            const current = await music.getCurrentSong();
+            const songs = (await music.getQueue()).map((s, i) => `${i+1}. ${formatSong(s)}`).join("\n");
+            message.reply("Now playing: " + formatSong(current) + "\nQueue:\n" + songs);
+        } else if (removeIfStarts("nowplaying")) {
+            const current = await music.getCurrentSong();
+            message.reply("Now playing: " + formatSong(current));
+        }
+
+        return;
     }
+
     if (!message.mentions.has(message.client.user)) return;
 
     if (message.content.length > 500) {
