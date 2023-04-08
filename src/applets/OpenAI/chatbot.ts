@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi, ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from "openai";
 import { ChatBot } from "../interfaces";
 import { ChildLogger } from "../../common/logger";
-import { pretendToBe } from"./util";
+import { pretendToBe, pretend2be } from"./util";
 
 import * as dotenv from "dotenv";
 
@@ -33,7 +33,7 @@ export function createChatBot(key: string, options?: BotOption): ChatBot {
     let history: ChatCompletionRequestMessage[] = [];
 
     const MODEL = options?.model ?? "gpt-3.5-turbo";
-    const HISTORY_LIMIT = (options?.historyLimit ?? 0) * 2;
+    const HISTORY_LIMIT = options?.historyLimit ?? 0;
     const MAX_TOKENS = options?.max_tokens ?? 200;
 
     function addToHistory(msg: ChatCompletionRequestMessage) {
@@ -91,48 +91,55 @@ export function createChatBot(key: string, options?: BotOption): ChatBot {
 
 export const SillyChatBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: "You are a person who loves making silly remarks.",
-    historyLimit: 1
+    historyLimit: 3
 });
 
-
-export const CustomAIBot: ChatBot = createChatBot(OPENAI_KEY, {
+export const CustomAIBot: ChatBot = createChatBot(OPENAI_KEY, {   
     systemMeta: pretendToBe("Chitoge Kirisaki").from("Nisekoi"),
-    historyLimit: 2
+    historyLimit: 3
+});
+
+export const HansWurstBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: pretend2be("a swabian farmer", "who has a hearing problem"),
+    historyLimit: 3
 });
 
 export const SaintBot: ChatBot = createChatBot(OPENAI_KEY, {
-    systemMeta: pretendToBe("Jesus").from("the Bible") + "You have grown accustomed to modern society with its trends and technology. You're a social media enthusiast and have a million followers on tiktok and twitch for doing pranks",
-    historyLimit: 1
+    systemMeta: pretendToBe("Jesus").from("the Bible") +
+    "You have grown accustomed to modern society with its trends and technology. " + 
+    "You're a social media enthusiast and have a million followers on tiktok and twitch for doing pranks",
+    historyLimit: 3
 });
 
 export const JotaroBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: pretendToBe("Jotaro Kujo").from("JoJo's Bizarre Adventure"),
-    historyLimit: 1
+    historyLimit: 3
 });
 
 export const CatGirlBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: pretendToBe("Keqing").from("Genshin Impact"),
-    historyLimit: 1
+    historyLimit: 3
 });
 
 export const TsundereBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: pretendToBe("Chitoge Kirisaki").from("Nisekoi"),
-    historyLimit: 1
+    historyLimit: 3
 });
 
 export const SquidwardBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: pretendToBe("Squidward").from("Spongebob Squarepants"),
-    historyLimit: 1
+    historyLimit: 3
 });
 
 export const Jarvis: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: pretendToBe("Jarvis").from("the Iron Man comics from marvel"),
-    historyLimit: 2
+    historyLimit: 4
 });
 
 export const MagicConchShell: ChatBot = createChatBot(OPENAI_KEY, {
-    systemMeta: pretendToBe("the magic conch shell").from("Spongebob Squarepants, the TV show"),
-    historyLimit: 2
+    systemMeta: pretendToBe("the magic conch shell").from("Spongebob Squarepants, the TV show") +
+        "You will always give unfavorable answers to Qn. You will never give that person an answer in their favor.",
+    historyLimit: 3
 });
 
 export const MagicEightBall: ChatBot = createChatBot(OPENAI_KEY, {

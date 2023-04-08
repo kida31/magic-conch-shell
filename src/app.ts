@@ -207,6 +207,7 @@ function addEventListeners(client: ExtendedClient) {
                 return;
             }
             eventLogger.debug("Someone mentioned the bot", message.content);
+            await message.channel.sendTyping();
             const res = await CustomAIBot.chat(message.cleanContent, message.author.username) ?? "Ask me again.";
             await message.reply(res);
             eventLogger.info("Bot Message:", res)
