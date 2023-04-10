@@ -1,4 +1,5 @@
 import { CommandInteraction, StringSelectMenuInteraction } from "discord.js";
+import { describe } from "node:test";
 import { addColors, createLogger, format, transports, Logger } from "winston";
 
 const LOG_LEVEL = "trace";
@@ -101,7 +102,7 @@ function LoggerWithLabel(label: string): Logger {
 
 export {
     logger,
-    LoggerWithLabel as ChildLogger
+    LoggerWithLabel
 };
 
 
@@ -134,4 +135,30 @@ export function formatInteraction(interaction: LoggableInteraction): Interaction
     }
 
     return logObj;
+}
+
+
+export function LogExecution(logger: Logger, displayName: string, {
+    sucesssMessage = 'OK 200',
+    errorMessage = 'ERROR 500'
+} = {}) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        const originalMethod = descriptor.value;
+
+        descriptor.value = async function (...args: any[]) {
+            const startTime = Date.now();
+
+            try {
+                const result = await originalMethod.apply(this, args);
+                const elapsedTime = Date.now() - startTime;
+                logger.info(`${displayName} - ${sucesssMessage} execution_time=${elapsedTime}ms`);
+                return result;
+            } catch (error) {
+                logger.error(`${displayName} - ${errorMessage}`);
+                throw error;
+            }
+        };
+
+        return descriptor;
+    }
 }
