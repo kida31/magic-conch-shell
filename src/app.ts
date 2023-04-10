@@ -1,14 +1,14 @@
 import { Player } from "discord-player";
-import { CacheType, Client, DMChannel, Events, GatewayIntentBits, GuildMember, Interaction, Message, VoiceBasedChannel } from "discord.js";
-import { conch } from "./applets/OpenAI/MagicConchShell";
+import { CacheType, Client, DMChannel, Events, GatewayIntentBits, GuildMember, Interaction, Message, StageChannel, VoiceBasedChannel } from "discord.js";
+import { conch } from "./applets/open-ai/MagicConchShell";
 import { deployData } from "./deployment";
 import { CommandCollection } from "./commands";
-import { Command, SlashCommand, UserContextMenuCommand } from "./commands/command";
+import { Command } from "./commands/command";
 import { logger as parent } from "./common/logger";
 import { GenericReply } from "./messages/Common";
-import { ExtendedClient } from "./structure/extended-client";
+import { ExtendedClient } from "./core/extended-client";
 import { DiscordPlayer, MusicCommand } from "./logic/music";
-import { CustomAIBot, SillyChatBot, MagicEightBall } from "./applets/OpenAI/chatbot";
+import { CustomAIBot, SillyChatBot, MagicEightBall } from "./applets/open-ai/chatbot";
 
 import * as dotenv from "dotenv";
 
@@ -47,7 +47,6 @@ async function main(): Promise<number> {
     if (doDeploy) {
         (async () => {
             if (doDeploy) {
-                await deployData(CommandCollection.getAllJson())
                 setupLogger.info("Deployed commands");
             }
         })()
@@ -64,23 +63,23 @@ async function loadCommands() {
     const commandSetupLogger = setupLogger.child({ "label": "Setup:Commands" })
 
     const commands = {
-        slash: new Map<string, SlashCommand>(),
-        context: new Map<string, UserContextMenuCommand>(),
+        slash: new Map<string, Command>(),
+        context: new Map<string, Command>(),
         get size(): number {
             return this.slash.size + this.context.size;
         }
     }
 
     CommandCollection.getAllSlashCommands().forEach((cmd, idx) => {
-        if (cmd.data.name in commands.slash) commandSetupLogger.warning("DUPLICATE COMMAND")
-        commands.slash.set(cmd.data.name, cmd);
-        commandSetupLogger.notice(`Registered #${idx} (/)${cmd.data.name}`);
+        // if (cmd.data.name in commands.slash) commandSetupLogger.warning("DUPLICATE COMMAND")
+        // commands.slash.set(cmd.data.name, cmd);
+        // commandSetupLogger.notice(`Registered #${idx} (/)${cmd.data.name}`);
     });
 
     CommandCollection.getAllUserContextMenuCommands().forEach((cmd, idx) => {
-        if (cmd.data.name in commands.context) commandSetupLogger.warning("DUPLICATE COMMAND")
-        commands.context.set(cmd.data.name, cmd);
-        commandSetupLogger.notice(`Registered #${idx} (App>)${cmd.data.name}`);
+        // if (cmd.data.name in commands.context) commandSetupLogger.warning("DUPLICATE COMMAND")
+        // commands.context.set(cmd.data.name, cmd);
+        // commandSetupLogger.notice(`Registered #${idx} (App>)${cmd.data.name}`);
     })
 
     return commands;
@@ -103,7 +102,7 @@ function addMusicListener(client: ExtendedClient) {
     player.eventNames().forEach(eventType =>{
         console.log(eventType);
         const childLogger = logger.child({ label:eventType.toString()});
-        player.events.on(eventType, (event: any) => {
+        player.on(eventType, (event: any) => {
             childLogger.log(event);
         })
     })
@@ -131,16 +130,6 @@ function addEventListeners(client: ExtendedClient) {
             eventLogger.warning(`No command matching ${interaction.commandName} was found.`);
             return;
         }
-
-        const meta = {
-            commandName: interaction.commandName,
-            guildId: interaction.guildId,
-            member: {
-                displayName: (interaction.member as GuildMember).displayName,
-                userId: (interaction.user.id)
-            },
-            status: "Pending"
-        };
 
         try {
             await command.execute(interaction);
@@ -207,7 +196,7 @@ function addEventListeners(client: ExtendedClient) {
                 return;
             }
             eventLogger.debug("Someone mentioned the bot", message.content);
-            await message.channel.sendTyping();
+            if (!(message.channel instanceof StageChannel)) await message.channel.sendTyping();
             const res = await CustomAIBot.chat(message.cleanContent, message.author.username) ?? "Ask me again.";
             await message.reply(res);
             eventLogger.info("Bot Message:", res)

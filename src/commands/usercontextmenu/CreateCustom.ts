@@ -12,7 +12,7 @@ import {
 } from "discord.js";
 
 import { logger as parentLogger } from "../../common/logger";
-import { UserContextMenuCommand } from "../command";
+import { Command } from "../command";
 import { GifMessageCommand } from "../templates/GifMessage";
 
 const logger = parentLogger.child({ label: "command:custom-gif" });
@@ -79,6 +79,6 @@ export default {
 
                 await new CustomGifMessage().execute(submitInteraction);
             })
-            .catch(err => logger.warning("Custom Message failed", err))
+            .catch((err:any) => logger.warning("Custom Message failed", err))
     }
-} as UserContextMenuCommand
+}

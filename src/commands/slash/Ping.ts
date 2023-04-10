@@ -3,10 +3,10 @@ import {
     Interaction,
     SlashCommandBuilder
 } from "discord.js";
-import { SlashCommand } from "../command";
+import { Command } from "../command";
 
 
-class SlashPingCommand implements SlashCommand {
+class SlashPingCommand implements Command {
     data = new SlashCommandBuilder()
         .setName("ping")
         .setDescription("Replies with Pong!")

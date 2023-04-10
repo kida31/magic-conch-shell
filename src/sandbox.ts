@@ -1,18 +1,18 @@
-import { MyAnimeListAPI } from "./applets/my-anime-list/mal-api";
-import * as dotenv from "dotenv";
-import { MyAnimeListAPIExtended } from "./applets/my-anime-list/mal-extended";
+import { CacheType, Interaction, Message, MessageReaction, PartialMessageReaction, SlashCommandBuilder } from "discord.js";
+import { Command } from "./commands/command";
 
-dotenv.config();
+type messageCreateType = Message<boolean>;
+type messageReactionType = MessageReaction | PartialMessageReaction;
+type interactionCreateType = Interaction<CacheType>
 
-const { MAL_ACCESS_TOKEN, MAL_CLIENT_ID } = process.env
+type genericInput = messageCreateType | interactionCreateType;
 
-const CONFIG = {
-    headers: {
-        Authorization: `Bearer ${MAL_ACCESS_TOKEN}`,
+const testCmd: Command = {
+    get data() {
+        return new SlashCommandBuilder();
+    },
+
+    execute: function (interaction: Interaction<CacheType>): Promise<void> {
+        throw new Error("Function not implemented.");
     }
-};
-
-(async () => {
-    const api = new MyAnimeListAPIExtended(MAL_CLIENT_ID!);
-    const songs = await api.getAnimeDetails(31964);
-})();
+}

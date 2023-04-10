@@ -10,7 +10,7 @@ import {
 } from "discord.js";
 import { quickRandomSearch } from "../../applets/Tenor/Tenor";
 import { logger as parentLogger } from "../../common/logger";
-import { Command, CommandData } from "../command";
+import { Command } from "../command";
 
 const logger = parentLogger.child({ label: "GifCommandBuilder" });
 
@@ -22,7 +22,7 @@ type GifMessageOptions = {
 }
 
 export abstract class GifMessageCommand implements Command {
-    abstract data: CommandData;
+    abstract data: any;
     abstract getParameters(interaction: Interaction<CacheType>): Promise<{
         query: string;
         message: string;
@@ -49,7 +49,7 @@ export abstract class GifMessageCommand implements Command {
 export class SlashGifMessageCommand extends GifMessageCommand {
     messageWithPlaceholder: string;
     query: string;
-    data: CommandData = new SlashCommandBuilder(); // empty
+    data: any = new SlashCommandBuilder(); // empty
 
     /** Message with ACTOR as placeholder for active user and TARGET for placeholder for target */
     constructor(options: {
@@ -98,7 +98,7 @@ export class SlashGifMessageCommand extends GifMessageCommand {
 export class UserContextMenuGifMessageCommand extends GifMessageCommand {
     messageWithPlaceholder: string;
     query: string;
-    data: CommandData = new SlashCommandBuilder(); // empty
+    data: any = new SlashCommandBuilder(); // empty
 
     /** Message with ACTOR as placeholder for active user and TARGET for placeholder for target */
     constructor(options: {

@@ -1,5 +1,6 @@
 import { LogExecution, LoggerWithLabel } from "../../common/logger";
-import { Anime, MyAnimeListAPI, SongInfo } from "./mal-api"
+import { MyAnimeListAPI } from "./core"
+import { Anime, SongInfo } from "./types";
 
 const logger = LoggerWithLabel("MyAnimeList API");
 

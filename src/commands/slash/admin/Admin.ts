@@ -1,12 +1,12 @@
 import { CacheType, ChatInputCommandInteraction, ClientPresence, Interaction, Presence, PresenceStatusData, PresenceUpdateStatus, SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "discord.js";
-import { CommandExecute, SlashCommand, SlashCommandData } from "../../command";
+import { Command } from "../../command";
 import { logger as parent } from "../../../common/logger";
 import { GenericReply } from "../../../messages/Common";
-import { conch, MagicConchShell } from "../../../applets/OpenAI/MagicConchShell";
+import { conch, MagicConchShell } from "../../../applets/open-ai/MagicConchShell";
 
 const logger = parent.child({ label: "admin" })
 
-class AdminCommand implements SlashCommand {
+class AdminCommand implements Command {
     data = new SlashCommandBuilder()
         .setName("admin")
         .setDescription("Bot Administration")

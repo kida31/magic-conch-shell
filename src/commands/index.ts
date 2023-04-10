@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { logger as parentLogger } from "../common/logger";
-import { Command, isCommand, SlashCommand, UserContextMenuCommand } from "./command";
+import { Command, isCommand } from "./command";
 
 
 let logger = parentLogger.child({ label: "CommandIndex" })
@@ -58,15 +58,11 @@ export const CommandCollection = {
         return loadAndCache(ROOT_DIR);
     },
 
-    getAllJson() {
-        return this.getAll().map(cmd => cmd.data.toJSON());
-    },
-
-    getAllSlashCommands: function (): SlashCommand[] {
+    getAllSlashCommands: function (): Command[] {
         return loadAndCache(SLASH_DIR);
     },
 
-    getAllUserContextMenuCommands: function (): UserContextMenuCommand[] {
+    getAllUserContextMenuCommands: function (): Command[] {
         return loadAndCache(CTX_DIR);
     },
 }

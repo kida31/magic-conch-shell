@@ -1,6 +1,6 @@
 import { Track, Player, GuildQueue } from "discord-player";
 import { VoiceBasedChannel, Client, Interaction, Message } from "discord.js";
-import { ExtendedClient } from "../structure/extended-client";
+import { ExtendedClient } from "../core/extended-client";
 
 
 // Required interface for all music commands
