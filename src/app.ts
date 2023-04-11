@@ -18,7 +18,7 @@ dotenv.config();
 const { VERSION } = process.env;
 
 
-const { TOKEN, DEV_TOKEN } = process.env;
+const { TOKEN, DEV_TOKEN, DEV_PREFIX } = process.env;
 
 const isDevMode = VERSION !== "LIVE";
 if (isDevMode) {
@@ -26,7 +26,7 @@ if (isDevMode) {
 }
 const token = isDevMode ? DEV_TOKEN : TOKEN;
 
-const PREFIX = "!!";
+const PREFIX = isDevMode ? DEV_PREFIX : "!!";
 
 async function main(): Promise<number> {
     /** PARSE CLI ARGUMENTS */

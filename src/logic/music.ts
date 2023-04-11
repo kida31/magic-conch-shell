@@ -76,7 +76,7 @@ export class DiscordPlayer implements MusicCommand {
         const user = (this.interaction.member instanceof GuildMember) ? this.interaction.member.displayName : "---";
         const { track } = await this.player.play(channel, query === "" ? EASTER_EGG.query : query, {
             requestedBy: user,
-            searchEngine: query.startsWith('http') ? "AUTO" : "YOUTUBE_SEARCH"
+            searchEngine: query.startsWith('http') ? "auto" : "youtube"
         });
         return track;
     }
