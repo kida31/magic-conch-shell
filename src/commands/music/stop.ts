@@ -9,7 +9,7 @@ export default class StopCommand implements Command {
         if (isMessage(context)) {
             const channel = context.member?.voice.channel;
             if (channel) {
-                await music.play(channel, context.content);
+                await music.stop();
             }
         }
     }

@@ -1,5 +1,5 @@
 import { Track, Player, GuildQueue } from "discord-player";
-import { VoiceBasedChannel, Client, Interaction, Message } from "discord.js";
+import { VoiceBasedChannel, Client, Interaction, Message, GuildMember } from "discord.js";
 import { ExtendedClient } from "../core/extended-client";
 
 
@@ -73,7 +73,8 @@ export class DiscordPlayer implements MusicCommand {
     }
 
     async play(channel: VoiceBasedChannel, query: string): Promise<Track> {
-        const { track } = await this.player.play(channel, query === "" ? EASTER_EGG.query : query);
+        const user = (this.interaction.member instanceof GuildMember) ? this.interaction.member.displayName : "---";
+        const { track } = await this.player.play(channel, query === "" ? EASTER_EGG.query : query, {requestedBy: user});
         return track;
     }
 

@@ -8,13 +8,18 @@ import {
 } from "discord.js";
 
 export type CommandContext = Interaction<CacheType> | Message<boolean>
+interface Jsonable {
+  toJSON():RESTPostAPIChatInputApplicationCommandsJSONBody | RESTPostAPIContextMenuApplicationCommandsJSONBody;
+}
+
+export type CommandCategory = string;
 
 export interface Command {
   name: string;
   alias?: string[];
   description?: string;
-  category?: string;
-  data?: Object[] | Object;
+  category?: CommandCategory;
+  data?: Jsonable | Jsonable[];
   execute(context: CommandContext): Promise<void>;
 }
 

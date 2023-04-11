@@ -1,14 +1,16 @@
 import { CacheType, Client, Interaction, Message, StageChannel } from "discord.js";
-import { Command } from "../commands/command";
+import { Command, CommandCategory } from "../commands/command";
 import { LoggerWithLabel } from "../common/logger";
+
 import PingCommand from "../commands/ping";
-import { CommandCollection } from "../commands";
-import { CustomAIBot } from "../external/open-ai/chatbot";
+import { ExtendedClient } from "./extended-client";
+import { DiscordPlayer } from "../logic/music";
 
 const logger = LoggerWithLabel("CommandHandler")
 
+
 export class CommandHandler {
-    private client: Client;
+    private client: ExtendedClient;
     private _prefix?: string;
     commands: Map<string, Command> = new Map();
 
@@ -20,7 +22,7 @@ export class CommandHandler {
         this._prefix = value;
     }
 
-    constructor(client: Client, config?: { prefix?: string }) {
+    constructor(client: ExtendedClient, config?: { prefix?: string }) {
         this.client = client;
         this._prefix = config?.prefix;
         if (!this._prefix) {
@@ -29,7 +31,6 @@ export class CommandHandler {
 
         // register
         this.registerCommand(new PingCommand());
-        this.registerCommand(...CommandCollection.fromFolder("music"));
 
         // hook
         client.on('interactionCreate', (interaction: Interaction<CacheType>) => this.handleInteraction(interaction));
@@ -38,6 +39,31 @@ export class CommandHandler {
 
     private async handleInteraction(interaction: Interaction<CacheType>) {
         // Not implemented
+        let command: Command | undefined;
+
+        if (!interaction.isChatInputCommand()) {
+            return;
+        }
+
+        command = this.commands.get(interaction.commandName);
+
+        if (!command) {
+            logger.warn("Unknown slash command");
+            return;
+        }
+
+        try {
+            await command.execute(interaction);
+        } catch (error) {
+            if (error instanceof Error) {
+                logger.error(error.stack ?? "", error);
+            }
+
+            await interaction.reply({
+                content: "There was an error while executing this command!",
+                ephemeral: true,
+            });
+        }
     }
 
     private async handleMessage(message: Message<boolean>) {
@@ -61,21 +87,53 @@ export class CommandHandler {
         } else {
             logger.debug(`Ignored ${message.content}`);
 
-            if (message.mentions.has(message.client.user)) {
-                if (message.content.length > 500) {
-                    return;
-                }
-                
-                if (!(message.channel instanceof StageChannel)) await message.channel.sendTyping();
-                const res = await CustomAIBot.chat(message.cleanContent, message.author.username) ?? "Ask me again.";
-                await message.reply(res);
-                return;
-            }
-    
-            // CustomAIBot.read(message.content);
+            await this.handleChat(message);
         }
     }
 
+    private async handleChat(message: Message) {
+        if (message.mentions.has(message.client.user) && this.client.chatbot) {
+            const chatbot = this.client.chatbot;
+
+            if (message.content.length > 500) {
+                return;
+            }
+
+            let isTyping = true;
+
+            // Wait for intervals of 5seconds
+            async function waitOrTypeForSeconds(seconds: number, sendTyping: Function): Promise<void> {
+                async function delay(ms: number): Promise<void> {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                while (seconds > 0 && isTyping) {
+                    seconds -= 5;
+                    await sendTyping();
+                    await delay(5000);
+                }
+            }
+
+            const sendTyping = async () => {
+                if (!(message.channel instanceof StageChannel)) await message.channel.sendTyping();
+            }
+
+            try {
+                const res = await Promise.race([
+                    chatbot.chat(message.cleanContent, message.member?.displayName ?? ""),
+                    waitOrTypeForSeconds(35, sendTyping).then(() => undefined)])
+                    ?? "I didn't hear you. Ask me again.";
+
+                const filteredResponse = await this.handleInternalCommands(message, res);
+                await message.reply(filteredResponse);
+            } catch (error) {
+                logger.warning(error);
+            } finally {
+                isTyping = false;
+            }
+        }
+    }
+    // TODO rename to registerCommands
     public registerCommand(...commands: Command[]): void {
         commands.forEach(command => {
             this.registerCommandAs(command, command.name);
@@ -94,4 +152,31 @@ export class CommandHandler {
     public async deploy(): Promise<void> {
 
     }
+
+    private async handleInternalCommands(message: Message, response: string): Promise<string> {
+        const regex = /\[\[(.+)]\]/;
+        const match = response.match(regex);
+        if (match) {
+            logger.info("Bot invokes command >> " + response);
+
+            const textInBrackets = match[1];
+            response = response.replace(`[[${textInBrackets}]]`, '');
+            const [cmd, ...rest] = textInBrackets.split(';')
+
+            const query = rest.join(" ");
+            const music = new DiscordPlayer(message);
+
+            if (cmd === "play" && message.member?.voice.channel) {
+                await music.play(message.member.voice.channel, query);
+            }
+
+            if (cmd === "skip") {
+                await music.skipSong();
+            }
+        }
+
+        return response;
+    }
 }
+
+
