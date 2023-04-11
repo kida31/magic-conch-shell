@@ -30,7 +30,7 @@ async function main(): Promise<number> {
     const noLogin: boolean = argv.includes("--dry");
     const doDeploy: boolean = argv.includes("--deploy");
 
-    /** CREATE CLIENT */
+    // Create client
     const client = new ExtendedClient({
         intents: [
             GatewayIntentBits.Guilds,
@@ -40,22 +40,25 @@ async function main(): Promise<number> {
         ],
     });
 
-    // client.commands = await loadCommands();
-    addClientLogger(client);
-    addMusicListener(client);
-
-    const commandHandler = new CommandHandler(client, {prefix:"!!"});
+    // Commands
+    const commandHandler = new CommandHandler(client, { prefix: "!!" });
     const musicInfo = new DiscordPlayerLogger(client);
 
-    /** DEPLOY COMMANDS */
-    if (doDeploy) {
-        (async () => {
-            if (doDeploy) {
-                setupLogger.info("Deployed commands");
-            }
-        })()
+    // Command deployment
+
+    // Logging
+    function addClientLogger(client: ExtendedClient) {
+        const botLogger = parent.child({ label: "Client" })
+
+        client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${commandHandler.commands.size} commands!`) });
+        client.once(Events.ClientReady, (c) => { botLogger.info(`Ready! Logged in as ${c.user.tag}`) });
+        client.on(Events.Debug, (s) => { botLogger.debug(s) });
+        client.on(Events.Warn, (s) => { botLogger.warning(s) });
+        client.on(Events.Error, (e) => { botLogger.error(e.stack) });
+        client.on(Events.InteractionCreate, (m) => { botLogger.debug(m) });
     }
 
+    // Login
     if (!noLogin) {
         client.login(token);
     }
@@ -63,141 +66,6 @@ async function main(): Promise<number> {
     return 0;
 }
 
-async function loadCommands() {
-    const commandSetupLogger = setupLogger.child({ "label": "Setup:Commands" })
-
-    const commands = {
-        slash: new Map<string, Command>(),
-        context: new Map<string, Command>(),
-        get size(): number {
-            return this.slash.size + this.context.size;
-        }
-    }
-
-    return commands;
-}
-
-function addClientLogger(client: ExtendedClient) {
-    const botLogger = parent.child({ label: "Client" })
-
-    client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${client.commands?.length} commands!`) });
-    client.once(Events.ClientReady, (c) => { botLogger.info(`Ready! Logged in as ${c.user.tag}`) });
-    client.on(Events.Debug, (s) => { botLogger.debug(s) });
-    client.on(Events.Warn, (s) => { botLogger.warning(s) });
-    client.on(Events.Error, (e) => { botLogger.error(e.stack) });
-    client.on(Events.InteractionCreate, (m) => { botLogger.debug(m) });
-}
-
-function addMusicListener(client: ExtendedClient) {
-    const logger = parent.child({ label: "Music" });
-    const player = client.player;
-    player.eventNames().forEach(eventType =>{
-        const childLogger = logger.child({ label:eventType.toString()});
-        player.on(eventType, (event: any) => {
-            childLogger.log(event);
-        })
-    })
-
-    setupLogger.info("Added listeners to music events");
-}
-
-function addEventListeners(client: ExtendedClient) {
-    /** LOGGING */
-    const eventLogger = parent.child({ label: "Event" })
-
-    /** BOT BEHAVIOUR */
-    client.on(Events.InteractionCreate, async (interaction) => {
-        let command: Command | undefined;
-
-        if (interaction.isChatInputCommand()) {
-            command = client.commands?.slash?.get(interaction.commandName);
-        } else if (interaction.isUserContextMenuCommand()) {
-            command = client.commands?.context?.get(interaction.commandName);
-        } else {
-            return;
-        }
-
-        if (!command) {
-            eventLogger.warning(`No command matching ${interaction.commandName} was found.`);
-            return;
-        }
-
-        try {
-            await command.execute(interaction);
-        } catch (error) {
-            if (error instanceof Error) {
-                eventLogger.warning(error.message);
-                eventLogger.error(error.stack ?? "", error);
-            }
-
-
-            await interaction.reply({
-                content: "There was an error while executing this command!",
-                ephemeral: true,
-            });
-        } finally {
-            eventLogger.debug("New chat interaction");
-        }
-    });
-
-
-
-    client.on('messageCreate', async (message) => {
-        if (message.author.id == message.client.user.id) return;
-
-        eventLogger.log("trace", "Observed a message: " + message.content.substring(0, 30) + "...");
-
-        if (message.content.startsWith(PREFIX)) {
-            const music: MusicCommand = new DiscordPlayer(message);
-            const channel: VoiceBasedChannel = message.member?.voice.channel!;
-
-            message.content = message.content.substring(1);
-            const removeIfStarts = (compare: string) => {
-                if (message.content.startsWith(compare)) {
-                    message.content = message.content.replace(compare, "");
-                    return true;
-                }
-                return false;
-            }
-
-            const formatSong = (s: any) => `${s.title} - ${s.author} (${s.duration})`
-
-            if (removeIfStarts("play")) {
-                await music.play(channel, message.content);
-            } else if (removeIfStarts("skip")) {
-                await music.skipSong();
-            } else if (removeIfStarts("stop")) {
-                await music.stop();
-            } else if (removeIfStarts("queue")) {
-                const current = await music.getCurrentSong();
-                const songs = (await music.getQueue()).map((s, i) => `${i + 1}. ${formatSong(s)}`).join("\n");
-                message.reply("Now playing: " + formatSong(current) + "\nQueue:\n" + songs);
-            } else if (removeIfStarts("nowplaying")) {
-                const current = await music.getCurrentSong();
-                message.reply("Now playing: " + formatSong(current));
-            }
-
-            return;
-        }
-
-        if (message.mentions.has(message.client.user)) {
-            if (message.content.length > 500) {
-                await message.reply(GenericReply.WARNING);
-                return;
-            }
-            eventLogger.debug("Someone mentioned the bot", message.content);
-            if (!(message.channel instanceof StageChannel)) await message.channel.sendTyping();
-            const res = await CustomAIBot.chat(message.cleanContent, message.author.username) ?? "Ask me again.";
-            await message.reply(res);
-            eventLogger.info("Bot Message:", res)
-            return;
-        }
-
-        // CustomAIBot.read(message.content);
-    })
-
-    setupLogger.info("Added listeners to discord events");
-}
 
 
 main();
