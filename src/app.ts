@@ -1,14 +1,6 @@
-import { Player } from "discord-player";
-import { CacheType, Client, DMChannel, Events, GatewayIntentBits, GuildMember, Interaction, Message, StageChannel, VoiceBasedChannel } from "discord.js";
-import { conch } from "./external/open-ai/MagicConchShell";
-import { deployData } from "./deployment";
-import { CommandCollection } from "./commands";
-import { Command } from "./commands/command";
+import { Events, GatewayIntentBits } from "discord.js";
 import { logger as parent } from "./common/logger";
-import { GenericReply } from "./messages/Common";
 import { ExtendedClient } from "./core/extended-client";
-import { DiscordPlayer, MusicCommand } from "./logic/music";
-import { CustomAIBot, SillyChatBot, MagicEightBall } from "./external/open-ai/chatbot";
 
 import * as dotenv from "dotenv";
 import { CommandHandler } from "./core/command-handler";
@@ -22,7 +14,7 @@ const setupLogger = parent.child({ label: "Setup" })
 dotenv.config();
 const { TOKEN: token } = process.env;
 
-const PREFIX = "+";
+const PREFIX = "!!";
 
 async function main(): Promise<number> {
     /** PARSE CLI ARGUMENTS */
@@ -41,15 +33,14 @@ async function main(): Promise<number> {
     });
 
     // Commands
-    const commandHandler = new CommandHandler(client, { prefix: "!!" });
+    const commandHandler = new CommandHandler(client, { prefix: PREFIX });
     const musicInfo = new DiscordPlayerLogger(client);
 
     // Command deployment
 
     // Logging
-    function addClientLogger(client: ExtendedClient) {
+    {
         const botLogger = parent.child({ label: "Client" })
-
         client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${commandHandler.commands.size} commands!`) });
         client.once(Events.ClientReady, (c) => { botLogger.info(`Ready! Logged in as ${c.user.tag}`) });
         client.on(Events.Debug, (s) => { botLogger.debug(s) });
