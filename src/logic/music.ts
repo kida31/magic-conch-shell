@@ -73,7 +73,7 @@ export class DiscordPlayer implements MusicCommand {
     }
 
     async play(channel: VoiceBasedChannel, query: string): Promise<Track> {
-        const user = (this.interaction.member instanceof GuildMember) ? this.interaction.member.displayName : "---";
+        const user = (this.interaction.member instanceof GuildMember) ? this.interaction.member.user : undefined;
         const { track } = await this.player.play(channel, query === "" ? EASTER_EGG.query : query, {
             requestedBy: user,
             searchEngine: query.startsWith('http') ? "auto" : "youtube"

@@ -9,13 +9,10 @@ export default [
         async execute(context: CommandContext) {
             const music = new DiscordPlayer(context);
             if (isMessage(context)) {
-                const channel = context.member?.voice.channel;
-                if (channel) {
-                    const current = await music.getCurrentSong() ?? undefined;
-                    const songs = await music.getQueue() ?? [];
-                    const progressBar = await music.getProgressBar() ?? undefined;
-                    channel.send(MusicCommandMessage.QUEUED_TRACKS(songs, current, progressBar));
-                }
+                const current = await music.getCurrentSong() ?? undefined;
+                const songs = await music.getQueue() ?? [];
+                const progressBar = await music.getProgressBar() ?? undefined;
+                context.channel.send(MusicCommandMessage.QUEUED_TRACKS(songs, current, progressBar));
             }
         }
     }
