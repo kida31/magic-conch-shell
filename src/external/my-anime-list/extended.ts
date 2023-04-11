@@ -16,7 +16,6 @@ export class MyAnimeListAPIExtended extends MyAnimeListAPI {
     @LogExecution(logger, "Get all related Songs")
     async getAllSongs(query: {id?: number, name?:string}): Promise<any> {
         const animes = await this._getAllRelatedAnime(query);
-        console.log(animes);
         return animes.map(a => [...(a.opening_themes ?? []), ...(a.ending_themes ?? [])]).flat();
     }
 
@@ -31,7 +30,7 @@ export class MyAnimeListAPIExtended extends MyAnimeListAPI {
             if (id in collected) return;
 
             if (MAX_ITERATIONS <= 0) {
-                console.log("Reached max calls", id);
+                logger.warn("Reached max calls", id);
                 return;
             };
             MAX_ITERATIONS -= 1;

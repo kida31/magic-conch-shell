@@ -2,11 +2,13 @@ import { CacheType, ChatInputCommandInteraction, ClientPresence, Interaction, Pr
 import { Command } from "../../command";
 import { logger as parent } from "../../../common/logger";
 import { GenericReply } from "../../../messages/Common";
-import { conch, MagicConchShell } from "../../../applets/open-ai/MagicConchShell";
+import { conch, MagicConchShell } from "../../../external/open-ai/MagicConchShell";
 
 const logger = parent.child({ label: "admin" })
 
 class AdminCommand implements Command {
+    name = "admin";
+    
     data = new SlashCommandBuilder()
         .setName("admin")
         .setDescription("Bot Administration")

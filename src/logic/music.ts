@@ -69,7 +69,7 @@ export class DiscordPlayer implements MusicCommand {
         this.interaction = interaction;
         this.player = (<ExtendedClient>this.interaction.client).player;
         this.queue = this.player.nodes.get(guild) ??
-            this.player.nodes.create(guild, DEFAULT_NODE_OPTIONS);
+            this.player.nodes.create(guild, { ...DEFAULT_NODE_OPTIONS, metadata: { channel: interaction.channel } });
     }
 
     async play(channel: VoiceBasedChannel, query: string): Promise<Track> {
@@ -121,5 +121,9 @@ export class DiscordPlayer implements MusicCommand {
 
     async clearQueue(): Promise<void> {
         this.queue.clear();
+    }
+
+    async getProgressBar(): Promise<string | null> {
+        return this.queue.node.createProgressBar();
     }
 }

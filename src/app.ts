@@ -1,6 +1,6 @@
 import { Player } from "discord-player";
 import { CacheType, Client, DMChannel, Events, GatewayIntentBits, GuildMember, Interaction, Message, StageChannel, VoiceBasedChannel } from "discord.js";
-import { conch } from "./applets/open-ai/MagicConchShell";
+import { conch } from "./external/open-ai/MagicConchShell";
 import { deployData } from "./deployment";
 import { CommandCollection } from "./commands";
 import { Command } from "./commands/command";
@@ -8,9 +8,11 @@ import { logger as parent } from "./common/logger";
 import { GenericReply } from "./messages/Common";
 import { ExtendedClient } from "./core/extended-client";
 import { DiscordPlayer, MusicCommand } from "./logic/music";
-import { CustomAIBot, SillyChatBot, MagicEightBall } from "./applets/open-ai/chatbot";
+import { CustomAIBot, SillyChatBot, MagicEightBall } from "./external/open-ai/chatbot";
 
 import * as dotenv from "dotenv";
+import { CommandHandler } from "./core/command-handler";
+import { DiscordPlayerLogger } from "./core/music-player-logger";
 
 
 /** LOGGING */
@@ -38,10 +40,12 @@ async function main(): Promise<number> {
         ],
     });
 
-    client.commands = await loadCommands();
+    // client.commands = await loadCommands();
     addClientLogger(client);
     addMusicListener(client);
-    addEventListeners(client);
+
+    const commandHandler = new CommandHandler(client, {prefix:"!!"});
+    const musicInfo = new DiscordPlayerLogger(client);
 
     /** DEPLOY COMMANDS */
     if (doDeploy) {
@@ -70,25 +74,13 @@ async function loadCommands() {
         }
     }
 
-    CommandCollection.getAllSlashCommands().forEach((cmd, idx) => {
-        // if (cmd.data.name in commands.slash) commandSetupLogger.warning("DUPLICATE COMMAND")
-        // commands.slash.set(cmd.data.name, cmd);
-        // commandSetupLogger.notice(`Registered #${idx} (/)${cmd.data.name}`);
-    });
-
-    CommandCollection.getAllUserContextMenuCommands().forEach((cmd, idx) => {
-        // if (cmd.data.name in commands.context) commandSetupLogger.warning("DUPLICATE COMMAND")
-        // commands.context.set(cmd.data.name, cmd);
-        // commandSetupLogger.notice(`Registered #${idx} (App>)${cmd.data.name}`);
-    })
-
     return commands;
 }
 
 function addClientLogger(client: ExtendedClient) {
     const botLogger = parent.child({ label: "Client" })
 
-    client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${client.commands.size} commands!`) });
+    client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${client.commands?.length} commands!`) });
     client.once(Events.ClientReady, (c) => { botLogger.info(`Ready! Logged in as ${c.user.tag}`) });
     client.on(Events.Debug, (s) => { botLogger.debug(s) });
     client.on(Events.Warn, (s) => { botLogger.warning(s) });
@@ -100,7 +92,6 @@ function addMusicListener(client: ExtendedClient) {
     const logger = parent.child({ label: "Music" });
     const player = client.player;
     player.eventNames().forEach(eventType =>{
-        console.log(eventType);
         const childLogger = logger.child({ label:eventType.toString()});
         player.on(eventType, (event: any) => {
             childLogger.log(event);
@@ -119,9 +110,9 @@ function addEventListeners(client: ExtendedClient) {
         let command: Command | undefined;
 
         if (interaction.isChatInputCommand()) {
-            command = client.commands.slash.get(interaction.commandName);
+            command = client.commands?.slash?.get(interaction.commandName);
         } else if (interaction.isUserContextMenuCommand()) {
-            command = client.commands.context.get(interaction.commandName);
+            command = client.commands?.context?.get(interaction.commandName);
         } else {
             return;
         }
@@ -133,7 +124,6 @@ function addEventListeners(client: ExtendedClient) {
 
         try {
             await command.execute(interaction);
-            meta.status = "Complete";
         } catch (error) {
             if (error instanceof Error) {
                 eventLogger.warning(error.message);
@@ -146,7 +136,7 @@ function addEventListeners(client: ExtendedClient) {
                 ephemeral: true,
             });
         } finally {
-            eventLogger.debug("New chat interaction", meta);
+            eventLogger.debug("New chat interaction");
         }
     });
 

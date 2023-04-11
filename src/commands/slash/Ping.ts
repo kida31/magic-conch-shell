@@ -7,6 +7,7 @@ import { Command } from "../command";
 
 
 class SlashPingCommand implements Command {
+    name="ping";
     data = new SlashCommandBuilder()
         .setName("ping")
         .setDescription("Replies with Pong!")

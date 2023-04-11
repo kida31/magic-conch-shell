@@ -19,10 +19,8 @@
     ],
   },
   "files": [
-    "./src/App.ts",
-    "./src/Sandbox.ts",
-    "src/external/my-anime-list/types.ts",
-    "src/external/open-ai/core.ts"
+    "./src/app.ts",
+    "./src/sandbox.ts",
   ],
   "include": [
     "./src/**/*",

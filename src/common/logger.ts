@@ -2,7 +2,7 @@ import { CommandInteraction, StringSelectMenuInteraction } from "discord.js";
 import { describe } from "node:test";
 import { addColors, createLogger, format, transports, Logger } from "winston";
 
-const LOG_LEVEL = "trace";
+const LOG_LEVEL = "info";
 
 const customLevels = {
     levels: {
@@ -60,7 +60,7 @@ const logger = createLogger({
     levels: customLevels.levels,
     transports: [
         new transports.Console({
-            level: "debug",
+            level: LOG_LEVEL,
             format: format.combine(
                 format.json(),
                 format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -96,8 +96,10 @@ const logger = createLogger({
 });
 
 
-function LoggerWithLabel(label: string): Logger {
-    return logger.child({ label: label });
+function LoggerWithLabel(label: string, level?:string): Logger {
+    const child = logger.child({ label: label });
+    child.level = level ?? LOG_LEVEL;
+    return child;
 }
 
 export {
@@ -162,3 +164,29 @@ export function LogExecution(logger: Logger, displayName: string, {
         return descriptor;
     }
 }
+
+export const LogCommand = (() => {
+    const logger = LoggerWithLabel("Command");
+    
+    return function(displayName: string, { sucesssMessage = 'Ok', errorMessage = 'Error' } = {}) {
+        return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+            const originalMethod = descriptor.value;
+    
+            descriptor.value = async function (...args: any[]) {
+                const startTime = Date.now();
+    
+                try {
+                    const result = await originalMethod.apply(this, args);
+                    const elapsedTime = Date.now() - startTime;
+                    logger.info(`${displayName} - ${sucesssMessage} execution_time=${elapsedTime}ms`);
+                    return result;
+                } catch (error) {
+                    logger.error(`${displayName} - ${errorMessage}`);
+                    throw error;
+                }
+            };
+    
+            return descriptor;
+        }
+    }
+})();

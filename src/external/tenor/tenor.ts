@@ -1,7 +1,7 @@
 import { request } from 'undici';
 import { logger } from '../../common/logger';
 import * as dotenv from "dotenv";
-import { GifFormat, MediaFormats, MediaObject, SearchOptions, TenorResponse } from "./Types";
+import { GifFormat, MediaFormats, MediaObject, SearchOptions, TenorResponse } from "./types";
 
 dotenv.config();
 const BASE_URL = 'https://tenor.googleapis.com/v2/search?'

@@ -8,7 +8,7 @@ import {
     SlashCommandBuilder,
     User
 } from "discord.js";
-import { quickRandomSearch } from "../../applets/Tenor/Tenor";
+import { quickRandomSearch } from "../../external/tenor/tenor";
 import { logger as parentLogger } from "../../common/logger";
 import { Command } from "../command";
 
@@ -22,6 +22,7 @@ type GifMessageOptions = {
 }
 
 export abstract class GifMessageCommand implements Command {
+    name= "placeholder";
     abstract data: any;
     abstract getParameters(interaction: Interaction<CacheType>): Promise<{
         query: string;
