@@ -1,5 +1,5 @@
+import { SystemPromptTemplate } from "../../templates/string-templates";
 import { ChatBot } from "../interfaces";
-import { SystemPromptTemplate } from"../../templates/string-templates";
 
 import * as dotenv from "dotenv";
 import { createChatBot } from "./core";
@@ -12,9 +12,13 @@ export const MarinWithListener: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: SystemPromptTemplate.withMusicListener(
         SystemPromptTemplate.pretendToBe("Marin Kitagawa")
             .from("My Dress-Up Darling")
-            //.from("Sono Bisque Doll wa Koi wo suru")
     ),
     historyLimit: 3
+});
+
+export const MarinChanBot: ChatBot = createChatBot(OPENAI_KEY, {
+    systemMeta: SystemPromptTemplate.pretendToBe("Marin Kitagawa").from("My Dress-Up Darling"),
+    historyLimit: 5
 });
 
 export const SillyChatBot: ChatBot = createChatBot(OPENAI_KEY, {
@@ -29,8 +33,8 @@ export const HansWurstBot: ChatBot = createChatBot(OPENAI_KEY, {
 
 export const SaintBot: ChatBot = createChatBot(OPENAI_KEY, {
     systemMeta: SystemPromptTemplate.pretendToBe("Jesus").from("the Bible") +
-    "You have grown accustomed to modern society with its trends and technology. " + 
-    "You're a social media enthusiast and have a million followers on tiktok and twitch for doing pranks",
+        "You have grown accustomed to modern society with its trends and technology. " +
+        "You're a social media enthusiast and have a million followers on tiktok and twitch for doing pranks",
     historyLimit: 3
 });
 
