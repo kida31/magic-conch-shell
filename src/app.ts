@@ -26,7 +26,7 @@ if (isDevMode) {
 }
 const token = isDevMode ? DEV_TOKEN : TOKEN;
 
-const PREFIX = "++";
+const PREFIX = "!!";
 
 async function main(): Promise<number> {
     /** PARSE CLI ARGUMENTS */
