@@ -1,8 +1,9 @@
 import { DiscordPlayer } from "../../logic/music";
-import { Command, CommandContext, isMessage } from "../command";
+import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 
 export default class PlayCommand implements Command {
     name = "play";
+    category: CommandCategory = "Music";
 
     async execute(context: CommandContext) {
         const music = new DiscordPlayer(context);

@@ -1,10 +1,11 @@
 import { DiscordPlayer } from "../../logic/music";
-import { Command, CommandContext, isMessage } from "../command";
+import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 import { MusicCommandMessage } from "./messages";
 
 export default [
     class QueueCommand implements Command {
         name = "queue";
+        category: CommandCategory = "Music";
 
         async execute(context: CommandContext) {
             const music = new DiscordPlayer(context);

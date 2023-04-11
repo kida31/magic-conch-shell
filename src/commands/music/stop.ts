@@ -1,16 +1,15 @@
 import { DiscordPlayer } from "../../logic/music";
-import { Command, CommandContext, isMessage } from "../command";
+import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 
 export default class StopCommand implements Command {
     name = "stop";
+    category: CommandCategory = "Music";
 
     async execute(context: CommandContext) {
         const music = new DiscordPlayer(context);
+        await music.stop();
         if (isMessage(context)) {
-            const channel = context.member?.voice.channel;
-            if (channel) {
-                await music.stop();
-            }
+            await context.react("✅");
         }
     }
 }

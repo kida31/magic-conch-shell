@@ -1,12 +1,12 @@
 import { ExtendedClient } from "../../core/extended-client";
-import { Command, CommandContext, isMessage } from "../command";
+import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 
 export default [
     class SetNameCommand implements Command {
         name: string = "name";
-        alias?: string[] | undefined;
-        description?: string | undefined;
-        category?: string | undefined;
+        alias?: string[] | undefined = ["setName"];
+        category?: CommandCategory | undefined = "Settings";
+        description?: string | undefined = "Set bot name to new value";
         // data?: Jsonable | Jsonable[] | undefined;
         async execute(context: CommandContext): Promise<void> {
             if (isMessage(context)) {
@@ -19,9 +19,10 @@ export default [
 
     class SetAvatarCommand implements Command {
         name: string = "avatar";
-        alias?: string[] | undefined;
-        description?: string | undefined;
-        category?: string | undefined;
+        alias: string[] = ["setAvatar"];
+        category: CommandCategory = "Settings";
+        description: string = "Set bot avatar to image url";
+        
         // data?: Jsonable | Jsonable[] | undefined;
         async execute(context: CommandContext): Promise<void> {
             if (isMessage(context)) {
@@ -36,9 +37,10 @@ export default [
 
     class ForgetChatCommand implements Command {
         name: string = "forget";
-        alias?: string[] | undefined;
-        description?: string | undefined;
-        category?: string | undefined;
+        category: CommandCategory = "Settings";
+        alias: string[] = ["Amnesia"];
+        description: string = "Make bot forget chat history";
+        
         // data?: Jsonable | Jsonable[] | undefined;
         async execute(context: CommandContext): Promise<void> {
             const chatbot = (<ExtendedClient>context.client).chatbot;

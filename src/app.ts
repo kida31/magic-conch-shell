@@ -1,4 +1,4 @@
-import { Events, GatewayIntentBits } from "discord.js";
+import { ActivityType, Events, GatewayIntentBits } from "discord.js";
 import { logger as parent } from "./common/logger";
 import { ExtendedClient } from "./core/extended-client";
 
@@ -26,7 +26,7 @@ if (isDevMode) {
 }
 const token = isDevMode ? DEV_TOKEN : TOKEN;
 
-const PREFIX = isDevMode ? DEV_PREFIX : "!!";
+const PREFIX = (isDevMode ? DEV_PREFIX : "!!") ?? "+++";
 
 async function main(): Promise<number> {
     /** PARSE CLI ARGUMENTS */
@@ -43,10 +43,11 @@ async function main(): Promise<number> {
             GatewayIntentBits.MessageContent,
             GatewayIntentBits.GuildPresences,
         ],
+        prefix: PREFIX!,
     });
 
     // Commands
-    const commandHandler = new CommandHandler(client, { prefix: PREFIX });
+    const commandHandler = client.commandHandler;
     commandHandler.registerCommand(...getQuickRegistered());
     commandHandler.registerCommand(...CommandCollection.fromFolder("admin"));
     commandHandler.registerCommand(...CommandCollection.fromFolder("music"));
@@ -60,7 +61,10 @@ async function main(): Promise<number> {
     {
         const botLogger = parent.child({ label: "Client" })
         client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${commandHandler.commands.size} commands!`) });
-        client.once(Events.ClientReady, (c) => { botLogger.info(`Ready! Logged in as ${c.user.tag}`) });
+        client.once(Events.ClientReady, (c) => {
+            botLogger.info(`Ready! Logged in as ${c.user.tag}`);
+            c.user.setActivity(`over you | ${PREFIX}help`, {type: ActivityType.Watching});
+        });
         client.on(Events.Debug, (s) => { botLogger.debug(s) });
         client.on(Events.Warn, (s) => { botLogger.warning(s) });
         client.on(Events.Error, (e) => { botLogger.error(e.stack) });

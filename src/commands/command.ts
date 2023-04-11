@@ -12,7 +12,7 @@ interface Jsonable {
   toJSON():RESTPostAPIChatInputApplicationCommandsJSONBody | RESTPostAPIContextMenuApplicationCommandsJSONBody;
 }
 
-export type CommandCategory = string;
+export type CommandCategory = "Settings" | "Music" | "Fun";
 
 export interface Command {
   name: string;

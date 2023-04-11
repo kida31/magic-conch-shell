@@ -48,7 +48,7 @@ export class CommandHandler {
         command = this.commands.get(interaction.commandName);
 
         if (!command) {
-            logger.warn("Unknown slash command");
+            logger.warning("Unknown slash command");
             return;
         }
 
@@ -68,7 +68,7 @@ export class CommandHandler {
 
     private async handleMessage(message: Message<boolean>) {
         // Shouldn't react to own messages
-        if (message.member?.user === message.client.user) return;
+        if (message.member?.user.id === message.client.user.id) return;
 
         if (!!this.prefix && message.content.startsWith(this.prefix)) {
             // Without prefix
@@ -145,8 +145,8 @@ export class CommandHandler {
         if (this.commands.has(name)) {
             logger.warning(`Duplicate command identifier '${name}' - overwriting...`);
         }
-        logger.info("Registered command for " + name);
         this.commands.set(name, command);
+        logger.info("Registered command for " + name);
     }
 
     public async deploy(): Promise<void> {

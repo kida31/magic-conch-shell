@@ -1,4 +1,4 @@
-import { Track, Player, GuildQueue } from "discord-player";
+import { Track, Player, GuildQueue, QueueRepeatMode } from "discord-player";
 import { VoiceBasedChannel, Client, Interaction, Message, GuildMember } from "discord.js";
 import { ExtendedClient } from "../core/extended-client";
 
@@ -37,12 +37,15 @@ export interface MusicCommand {
 
     /** Clear queue */
     clearQueue(): Promise<void>;
+
+    setMode(mode: RepeatMode): Promise<void>;
 }
 
 
 // options for guild node (aka your queue)
 const DEFAULT_NODE_OPTIONS = {
-    volume: 2
+    volume: 2,
+    repeatMode: QueueRepeatMode.AUTOPLAY,
 };
 
 // Hardcoded fallback values
@@ -69,14 +72,17 @@ export class DiscordPlayer implements MusicCommand {
         this.interaction = interaction;
         this.player = (<ExtendedClient>this.interaction.client).player;
         this.queue = this.player.nodes.get(guild) ??
-            this.player.nodes.create(guild, { ...DEFAULT_NODE_OPTIONS, metadata: { channel: interaction.channel } });
+            this.player.nodes.create(guild, {
+                ...DEFAULT_NODE_OPTIONS,
+                metadata: { channel: interaction.channel },
+            });
     }
 
     async play(channel: VoiceBasedChannel, query: string): Promise<Track> {
         const user = (this.interaction.member instanceof GuildMember) ? this.interaction.member.user : undefined;
         const { track } = await this.player.play(channel, query === "" ? EASTER_EGG.query : query, {
             requestedBy: user,
-            searchEngine: query.startsWith('http') ? "auto" : "youtube"
+            searchEngine: query.startsWith('http') ? "auto" : "youtube",
         });
         return track;
     }
@@ -130,4 +136,18 @@ export class DiscordPlayer implements MusicCommand {
     async getProgressBar(): Promise<string | null> {
         return this.queue.node.createProgressBar();
     }
+
+    async setMode(mode: RepeatMode): Promise<void> {
+        this.queue.setRepeatMode({
+            'off': QueueRepeatMode.OFF,
+            'repeatOne': QueueRepeatMode.TRACK,
+            'repeatAll': QueueRepeatMode.QUEUE,
+            'autoplay': QueueRepeatMode.AUTOPLAY
+        }[mode]);
+    }
+}
+
+export type RepeatMode = 'off' | 'repeatOne' | 'repeatAll' | 'autoplay'
+export function isRepeatMode(text: string): text is RepeatMode {
+    return text === 'off' || text === 'repeatOne' || text === 'repeatAll' || text === 'autoplay'
 }

@@ -1,9 +1,9 @@
 import { LogCommand } from "../common/logger";
 import { QuickRegisterCommand } from "../core/command-decorator";
-import { Command, CommandContext, isInteraction } from "./command";
+import { Command, CommandCategory, CommandContext, isInteraction } from "./command";
 
 export default class PingCommand implements Command {
-    category?: string | undefined;
+    category: CommandCategory = "Settings";
 
     name = "ping";
     alias = ['test'];

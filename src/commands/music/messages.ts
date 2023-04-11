@@ -74,7 +74,7 @@ class _MusicCommandMessage {
 
         if (reqBy) {
             embed
-                .setAuthor({ name: reqBy.toString(), iconURL: reqBy.avatarURL() ?? reqBy.defaultAvatarURL })
+                .setAuthor({ name: reqBy.username, iconURL: reqBy.avatarURL() ?? reqBy.defaultAvatarURL })
                 .setThumbnail(reqBy.avatarURL() ?? reqBy.defaultAvatarURL)
         }
 
@@ -83,7 +83,7 @@ class _MusicCommandMessage {
 
         if (current) {
             embed.setThumbnail(current.thumbnail);
-            description += `[${progressBar}\n${current.title} - ${current.author}](${current.url}) ${current.requestedBy}}\n\n`
+            description += `[${progressBar}\n${current.title} - ${current.author}](${current.url}) ${current.requestedBy}\n\n`
         }
 
         if (tracks.length > 0) {
