@@ -13,7 +13,7 @@ export default [
                 const current = await music.getCurrentSong() ?? undefined;
                 const songs = await music.getQueue() ?? [];
                 const progressBar = await music.getProgressBar() ?? undefined;
-                context.channel.send(MusicCommandMessage.QUEUED_TRACKS(songs, current, progressBar));
+                await context.channel.send(MusicCommandMessage.QUEUED_TRACKS(songs, current, progressBar));
             }
         }
     }

@@ -12,7 +12,7 @@ export default class NowPlayingCommand implements Command {
         if (isMessage(context)) {
             const current = (await music.getCurrentSong()) ?? null;
             const progressBar = (await music.getProgressBar()) ?? undefined;
-            context.channel.send(MusicCommandMessage.NOW_PLAYING(current, progressBar));
+            await context.channel.send(MusicCommandMessage.NOW_PLAYING(current, progressBar));
         }
     }
 }
