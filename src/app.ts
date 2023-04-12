@@ -1,12 +1,12 @@
-import { ActivityType, Events, GatewayIntentBits } from "discord.js";
+import { Events, GatewayIntentBits } from "discord.js";
 import { logger as parent } from "./common/logger";
 import { ExtendedClient } from "./core/extended-client";
 
 import * as dotenv from "dotenv";
-import { CommandHandler } from "./core/command-handler";
 import { DiscordPlayerLogger } from "./core/discord-player-responses";
 import { CommandCollection } from "./commands";
 import { getQuickRegistered } from "./core/command-decorator";
+import { ActivityTemplates } from "./templates/discord-templates";
 
 
 /** LOGGING */
@@ -63,14 +63,14 @@ async function main(): Promise<number> {
         client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${commandHandler.commands.size} commands!`) });
         client.once(Events.ClientReady, (c) => {
             botLogger.info(`Ready! Logged in as ${c.user.tag}`);
-            c.user.setActivity(`over you | ${PREFIX}help`, {type: ActivityType.Watching});
+            c.user.setActivity(...ActivityTemplates.Random(`${PREFIX}help`));
         });
         client.on(Events.Debug, (s) => { botLogger.debug(s) });
         client.on(Events.Warn, (s) => { botLogger.warning(s) });
         client.on(Events.Error, (e) => { botLogger.error(e.stack) });
         client.on(Events.InteractionCreate, (m) => { botLogger.debug(m) });
         client.on(Events.PresenceUpdate, (previousStatus, newstatus) => {
-            previousStatus?.status
+            // previousStatus?.status
         })
     }
 
