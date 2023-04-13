@@ -68,7 +68,7 @@ class _MusicCommandMessage {
         return embedMessage("There are no songs in the queue", "Red")
     }
 
-    QUEUED_TRACKS(tracks: Track[], current?: Track, progressBar?: string): BaseMessageOptions {
+    QUEUED_TRACKS(tracks: Track[], current?: Track, progressBar?: string, numShown: number = 20): BaseMessageOptions {
         const embed = new EmbedBuilder().setTitle("Queue");
         const reqBy = current?.requestedBy;
 
@@ -79,7 +79,8 @@ class _MusicCommandMessage {
         }
 
         let description = "";
-        const stringify = (t: Track) => `[${t.title}](${t.url}) \`${t.duration}\` ${t.requestedBy}`;
+        const stringifyTrack = (t: Track) => `[${t.title}](${t.url}) \`${t.duration}\` ${t.requestedBy}`;
+        const stringifyTracks = (ts: Track[]) => ts.map((t, idx) => `${idx + 1}. ${stringifyTrack(t)}`);
 
         if (current) {
             embed.setThumbnail(current.thumbnail);
@@ -87,13 +88,16 @@ class _MusicCommandMessage {
         }
 
         if (tracks.length > 0) {
-            description += tracks
-                .slice(0, 100)
-                .map((t, idx) => `${idx + 1}. ${stringify(t)}`)
-                .join('\n');
+            description += stringifyTracks(tracks.slice(0, numShown)).join('\n');
         }
 
-        if (description != "") {
+        if (description !== "") {
+            if (description.length > 4090) {
+                description = description.substring(0, 4090);
+            }
+            if (tracks.length > numShown) {
+                description += "\n...";
+            }
             embed.setDescription(description);
         }
 
