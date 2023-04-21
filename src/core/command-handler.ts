@@ -115,7 +115,8 @@ export class CommandHandler {
             }
 
             const sendTyping = async () => {
-                if (!(message.channel instanceof StageChannel)) await message.channel.sendTyping();
+                // @ts-ignore
+                if ("sendTyping" in message.channel) await message.channel.sendTyping();
             }
 
             try {
