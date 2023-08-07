@@ -7,7 +7,7 @@ export class DiscordPlayerLogger {
     constructor(client: ExtendedClient) {
         const logger = LoggerWithLabel("Discord Player");
 
-        const player = client.player;
+        const player = client.musicPlayer;
 
         player.events.on("audioTrackAdd", (queue, track) => {
             const { channel } = (queue.metadata as { channel: TextBasedChannel | null});

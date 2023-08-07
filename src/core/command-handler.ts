@@ -4,7 +4,8 @@ import { LoggerWithLabel } from "../common/logger";
 
 import PingCommand from "../commands/ping";
 import { ExtendedClient } from "./extended-client";
-import { DiscordPlayer } from "../logic/music";
+
+import {DiscordPlayerAction} from "../music/discord-player-action";
 
 const logger = LoggerWithLabel("CommandHandler")
 
@@ -92,8 +93,8 @@ export class CommandHandler {
     }
 
     private async handleChat(message: Message) {
-        if (message.mentions.has(message.client.user) && this.client.chatbot) {
-            const chatbot = this.client.chatbot;
+        if (message.mentions.has(message.client.user) && this.client.chatBot) {
+            const chatbot = this.client.chatBot;
 
             if (message.content.length > 500) {
                 return;
@@ -165,7 +166,7 @@ export class CommandHandler {
             const [cmd, ...rest] = textInBrackets.split(';')
 
             const query = rest.join(" ");
-            const music = new DiscordPlayer(message);
+            const music = new DiscordPlayerAction(message);
 
             if (cmd === "play" && message.member?.voice.channel) {
                 await music.play(message.member.voice.channel, query);

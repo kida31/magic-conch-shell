@@ -1,6 +1,6 @@
 import { Track, GuildQueue } from "discord-player";
 import { BaseMessageOptions, EmbedBuilder, InteractionReplyOptions } from "discord.js";
-import { createSimpleReply, embedMessage } from "../../messages/Common";
+import { createEmbedReply, createEmbedMsg } from "../../messages/utils";
 
 
 class _MusicCommandMessage {
@@ -9,7 +9,7 @@ class _MusicCommandMessage {
     }
 
     CONFIRM_QUIET() {
-        return createSimpleReply(":white_check_mark:", "Green", true);
+        return createEmbedReply(":white_check_mark:", "Green", true);
     }
 
     WARNING() {
@@ -17,7 +17,7 @@ class _MusicCommandMessage {
     }
 
     WARNING_QUIET() {
-        return createSimpleReply(":warning:", "Yellow", true);
+        return createEmbedReply(":warning:", "Yellow", true);
     }
 
     ERROR() {
@@ -25,7 +25,7 @@ class _MusicCommandMessage {
     }
 
     ERROR_QUIET() {
-        return createSimpleReply(":no_entry_sign:", "Red", true);
+        return createEmbedReply(":no_entry_sign:", "Red", true);
     }
 
     ADDED_TRACK(track: Track) {
@@ -41,11 +41,11 @@ class _MusicCommandMessage {
     }
 
     ADDED_TRACKS(tracks: Track[]) {
-        return embedMessage("PLACEHOLDER Added " + tracks.length + " tracks.", "Grey");
+        return createEmbedMsg("PLACEHOLDER Added " + tracks.length + " tracks.", "Grey");
     }
 
     ADDED_PLAYLIST() {
-        return embedMessage("PLACEHOLDER Added playlist", "Grey");
+        return createEmbedMsg("PLACEHOLDER Added playlist", "Grey");
     }
 
     NOW_PLAYING(t: Track | null, progressBar?: string) {
@@ -61,11 +61,11 @@ class _MusicCommandMessage {
     }
 
     NOTHING_PLAYING() {
-        return embedMessage("There is nothing playing", "Grey");
+        return createEmbedMsg("There is nothing playing", "Grey");
     }
 
     QUEUE_EMPTY() {
-        return embedMessage("There are no songs in the queue", "Red")
+        return createEmbedMsg("There are no songs in the queue", "Red")
     }
 
     QUEUED_TRACKS(tracks: Track[], current?: Track, progressBar?: string, numShown: number = 20): BaseMessageOptions {
@@ -112,23 +112,23 @@ class _MusicCommandMessage {
     }
 
     STOPPED() {
-        return embedMessage("Bye", "Blue");
+        return createEmbedMsg("Bye", "Blue");
     }
 
     SKIPPED() {
-        return embedMessage("Skipped current song", "Blue");
+        return createEmbedMsg("Skipped current song", "Blue");
     }
 
     NO_RESULTS(query?: string) {
-        return { ...embedMessage("No results found" + (query ? (" for " + query) : ""), "Grey"), ephemeral: true }
+        return { ...createEmbedMsg("No results found" + (query ? (" for " + query) : ""), "Grey"), ephemeral: true }
     }
 
     USER_NOT_IN_VOICE() {
-        return createSimpleReply("You're not in a voice channel", "Red", true);
+        return createEmbedReply("You're not in a voice channel", "Red", true);
     }
 
     INVALID_OPERATION() {
-        return createSimpleReply("Operation was invalid.", "Red", true);
+        return createEmbedReply("Operation was invalid.", "Red", true);
     }
 
     NONE() {
@@ -136,7 +136,7 @@ class _MusicCommandMessage {
     }
 
     SHUFFLED() {
-        return embedMessage("Shuffled the queue", "Green")
+        return createEmbedMsg("Shuffled the queue", "Green")
     }
 }
 

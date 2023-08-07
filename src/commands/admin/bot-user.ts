@@ -43,7 +43,7 @@ export default [
         
         // data?: Jsonable | Jsonable[] | undefined;
         async execute(context: CommandContext): Promise<void> {
-            const chatbot = (<ExtendedClient>context.client).chatbot;
+            const chatbot = (<ExtendedClient>context.client).chatBot;
             if (chatbot) {
                 for(let i = 0; i < 20; i++) {
                     await chatbot.read("\n");
