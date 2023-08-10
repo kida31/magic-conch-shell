@@ -1,5 +1,5 @@
 import { TextBasedChannel } from "discord.js";
-import { MusicCommandMessage } from "../commands/music/messages";
+import * as DEFAULT from "../commands/music/messages";
 import { LoggerWithLabel } from "../common/logger";
 import { ExtendedClient } from "./extended-client";
 
@@ -12,20 +12,20 @@ export class DiscordPlayerLogger {
         player.events.on("audioTrackAdd", (queue, track) => {
             const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
             // @ts-ignore
-            channel?.send(MusicCommandMessage.ADDED_TRACK(track));
+            channel?.send(DEFAULT.ADDED_TRACK(track));
             logger.info("Added track" + track.title);
         });
 
         player.events.on("audioTracksAdd", (queue, tracks) => {
             const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
             // @ts-ignore
-            channel?.send(MusicCommandMessage.ADDED_TRACKS(tracks));
+            channel?.send(DEFAULT.ADDED_TRACKS(tracks));
         });
 
         player.events.on("disconnect", (queue) => {
             const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
             // @ts-ignore
-            channel?.send(MusicCommandMessage.STOPPED());
+            channel?.send(DEFAULT.STOPPED);
         });
 
         player.events.on("debug", (queue, msg) => {
@@ -35,13 +35,13 @@ export class DiscordPlayerLogger {
         player.events.on("playerStart", (queue, track) => {
             const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
             // @ts-ignore
-            channel?.send(MusicCommandMessage.NOW_PLAYING(track));
+            channel?.send(DEFAULT.NOW_PLAYING(track));
         });
 
         player.events.on("playerSkip", (queue, track) => {
             const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
             // @ts-ignore
-            channel?.send(MusicCommandMessage.SKIPPED());
+            channel?.send(DEFAULT.SKIPPED);
         });
 
         player.eventNames().forEach(name => {

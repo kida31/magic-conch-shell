@@ -3,7 +3,7 @@ import {Player} from "discord-player";
 import {ChatBot} from "../external/interfaces";
 import {MarinChanBot} from "../external/open-ai/chatbot";
 import {CommandHandler} from "./command-handler";
-import {error, info, success, warning} from "../messages/reply";
+import {error, info, success, warning, send} from "../messages/reply";
 
 
 /** Extended client class to include discord-player.Player */
@@ -11,7 +11,7 @@ export class ExtendedClient extends Client {
     musicPlayer: Player;
     chatBot?: ChatBot;
     commandHandler: CommandHandler;
-    reply = {info, success, warning, error}
+    reply = {info, success, warning, error, send}
 
     constructor({prefix, ...options}: ClientOptions & { prefix: string }) {
         super(options);

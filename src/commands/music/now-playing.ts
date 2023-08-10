@@ -1,5 +1,5 @@
-import { Command, CommandCategory, CommandContext, isMessage } from "../command";
-import { MusicCommandMessage } from "./messages";
+import {Command, CommandCategory, CommandContext, isMessage} from "../command";
+import * as DefaultMessage from "./messages";
 import {DiscordPlayerAction} from "../../music/discord-player-action";
 
 export default class NowPlayingCommand implements Command {
@@ -8,11 +8,15 @@ export default class NowPlayingCommand implements Command {
     category: CommandCategory = "Music";
 
     async execute(context: CommandContext) {
-        const music = new DiscordPlayerAction(context);
         if (isMessage(context)) {
-            const current = (await music.getCurrentSong()) ?? null;
-            const progressBar = (await music.getProgressBar()) ?? undefined;
-            await context.channel.send(MusicCommandMessage.NOW_PLAYING(current, progressBar));
+            const dpa = new DiscordPlayerAction(context);
+            const current = (await dpa.getCurrentSong()) ?? null;
+            if (current) {
+                const progressBar = (await dpa.getProgressBar()) ?? undefined;
+                await context.channel.send(DefaultMessage.NOW_PLAYING(current, progressBar));
+            } else {
+                // pass
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 import { Command, CommandCategory, CommandContext, isMessage } from "../command";
-import { MusicCommandMessage } from "./messages";
+import {QUEUED_TRACKS} from "./messages";
 import {DiscordPlayerAction} from "../../music/discord-player-action";
 
 export default [
@@ -13,7 +13,7 @@ export default [
                 const current = await music.getCurrentSong() ?? undefined;
                 const songs = await music.getQueue() ?? [];
                 const progressBar = await music.getProgressBar() ?? undefined;
-                await context.channel.send(MusicCommandMessage.QUEUED_TRACKS(songs, current, progressBar));
+                await context.channel.send(QUEUED_TRACKS(songs, current, progressBar));
             }
         }
     }
