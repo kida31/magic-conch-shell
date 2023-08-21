@@ -1,4 +1,4 @@
-import { Events, GatewayIntentBits } from "discord.js";
+import { Client, Events, GatewayIntentBits } from "discord.js";
 import { logger as parent } from "./common/logger";
 import { ExtendedClient } from "./core/extended-client";
 
@@ -7,7 +7,7 @@ import { DiscordPlayerLogger } from "./core/discord-player-responses";
 import { CommandCollection } from "./commands";
 import { getQuickRegistered } from "./core/command-decorator";
 import { ActivityTemplates } from "./templates/discord-templates";
-import { MusicRestService } from "./music/rest/service";
+import { MusicRestService } from "./rest-service";
 
 
 /** LOGGING */

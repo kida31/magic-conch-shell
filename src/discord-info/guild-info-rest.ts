@@ -3,22 +3,22 @@ import express from "express";
 import { InvalidArgumentException } from "../common/error";
 import { getGuild, getVoiceChannels } from "./guild-info";
 
-export const Router = (client: Client) => {
+export default function InfoRouter(client: Client) {
     const router = express.Router();
     router
-        .get("/guild", (req, res, next) => {
-            const id = req.query.id as string;
+        .get("/:guildId", (req, res, next) => {
+            const guildId = req.params.guildId;
 
-            if (!id) {
+            if (!guildId) {
                 throw new InvalidArgumentException("Missing id");
             }
-            const result = getGuild(client, id);
+            const result = getGuild(client, guildId);
 
             // TODO restrict information as needed
             res.json(result);
         })
-        .get("/voice-channels", (req, res, next) => {
-            const guidId = req.query.guildId as string;
+        .get("/:guildId/voice-channels", (req, res, next) => {
+            const guidId = req.params.guildId;
 
             const result = getVoiceChannels(client, guidId);
 
