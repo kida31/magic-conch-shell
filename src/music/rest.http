@@ -1,0 +1,36 @@
+@port = 8080
+@guildId = 907292048317632522
+@channelId = 953916883017555978
+
+###
+http://localhost:{{port}}/music/{{guildId}}/current
+
+###
+http://localhost:{{port}}/music/{{guildId}}/timestamp
+
+###
+http://localhost:{{port}}/info/{{guildId}}/voice-channels
+
+###
+http://localhost:{{port}}/music/{{guildId}}/queue
+
+###
+http://localhost:{{port}}/music/channels
+
+### Play music
+POST http://localhost:{{port}}/music/{{guildId}}/play HTTP/1.1
+content-type: application/json
+
+{
+    "url": "https://www.youtube.com/watch?v=WbN0nX61rIs",
+    "channelId": "{{channelId}}"
+}
+
+### Add to queue
+POST http://localhost:{{port}}/music/{{guildId}}/add HTTP/1.1
+content-type: application/json
+
+{
+    "url": "gary come home",
+    "channelId": "{{channelId}}"
+}
