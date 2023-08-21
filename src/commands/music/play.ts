@@ -1,5 +1,5 @@
 import { Command, CommandCategory, CommandContext, isMessage } from "../command";
-import {DiscordPlayerAction} from "../../music/discord-player-action";
+import {DiscordPlayerAction, playQuery} from "../../music/discord-player-action";
 
 export default class PlayCommand implements Command {
     name = "play";

@@ -7,6 +7,7 @@ import { DiscordPlayerLogger } from "./core/discord-player-responses";
 import { CommandCollection } from "./commands";
 import { getQuickRegistered } from "./core/command-decorator";
 import { ActivityTemplates } from "./templates/discord-templates";
+import { MusicRestService } from "./music/rest/service";
 
 
 /** LOGGING */
@@ -16,7 +17,6 @@ const setupLogger = parent.child({ label: "Setup" })
 dotenv.config();
 
 const { VERSION } = process.env;
-
 
 const { TOKEN, DEV_TOKEN, DEV_PREFIX } = process.env;
 
@@ -46,12 +46,12 @@ async function main(): Promise<number> {
         prefix: PREFIX!,
     });
 
-    // Commands
+    // // Commands
     const commandHandler = client.commandHandler;
     commandHandler.registerCommand(...getQuickRegistered());
-    commandHandler.registerCommand(...CommandCollection.fromFolder("admin"));
+    // commandHandler.registerCommand(...CommandCollection.fromFolder("admin"));
     commandHandler.registerCommand(...CommandCollection.fromFolder("music"));
-    commandHandler.registerCommand(...CommandCollection.fromFolder("slash"));
+    // commandHandler.registerCommand(...CommandCollection.fromFolder("slash"));
 
     const musicInfo = new DiscordPlayerLogger(client);
 
@@ -74,14 +74,23 @@ async function main(): Promise<number> {
         })
     }
 
+    // Express
+    {
+        const restservice = new MusicRestService({
+            player: client.musicPlayer,
+            client: client
+        });
+        await restservice.start();
+    }
+
     // Login
     if (!noLogin) {
+        console.log("Logging in...")
+        console.log(token);
         client.login(token);
     }
 
     return 0;
 }
-
-
 
 main();

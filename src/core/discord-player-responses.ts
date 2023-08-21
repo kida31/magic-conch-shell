@@ -10,21 +10,21 @@ export class DiscordPlayerLogger {
         const player = client.musicPlayer;
 
         player.events.on("audioTrackAdd", (queue, track) => {
-            const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
+            logger.info("Added track" + track.title);
+
+            const channel = (queue?.metadata as any)?.channel as TextBasedChannel ?? queue.channel;
             // @ts-ignore
             channel?.send(MusicCommandMessage.ADDED_TRACK(track));
-            logger.info("Added track" + track.title);
         });
 
         player.events.on("audioTracksAdd", (queue, tracks) => {
-            const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
+            const channel = (queue?.metadata as any)?.channel as TextBasedChannel ?? queue.channel;
             // @ts-ignore
             channel?.send(MusicCommandMessage.ADDED_TRACKS(tracks));
         });
 
         player.events.on("disconnect", (queue) => {
-            const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
-            // @ts-ignore
+            const channel = (queue?.metadata as any)?.channel as TextBasedChannel ?? queue.channel;            // @ts-ignore
             channel?.send(MusicCommandMessage.STOPPED());
         });
 
@@ -33,13 +33,13 @@ export class DiscordPlayerLogger {
         });
 
         player.events.on("playerStart", (queue, track) => {
-            const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
+            const channel = (queue?.metadata as any)?.channel as TextBasedChannel ?? queue.channel;
             // @ts-ignore
             channel?.send(MusicCommandMessage.NOW_PLAYING(track));
         });
 
         player.events.on("playerSkip", (queue, track) => {
-            const { channel } = (queue.metadata as { channel: TextBasedChannel | null});
+            const channel = (queue?.metadata as any)?.channel as TextBasedChannel ?? queue.channel;
             // @ts-ignore
             channel?.send(MusicCommandMessage.SKIPPED());
         });

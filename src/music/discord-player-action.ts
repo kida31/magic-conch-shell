@@ -1,15 +1,17 @@
-import {Music} from "./music";
-import {GuildQueue, Player, QueueRepeatMode, Track} from "discord-player";
-import {GuildMember, Interaction, Message, VoiceBasedChannel} from "discord.js";
-import {ExtendedClient} from "../core/extended-client";
-import {EASTER_EGG} from "./EASTER_EGG";
-import {RepeatMode} from "./types";
+import { Music } from "./music";
+import { GuildQueue, Player, QueueRepeatMode, Track } from "discord-player";
+import { ChannelResolvable, GuildBasedChannel, GuildChannel, GuildChannelResolvable, GuildMember, GuildResolvable, GuildVoiceChannelResolvable, Interaction, Message, VoiceBasedChannel, VoiceChannel } from "discord.js";
+import { ExtendedClient } from "../core/extended-client";
+import { EASTER_EGG } from "./EASTER_EGG";
+import { RepeatMode } from "./types";
+import { InvalidArgumentException, NotFoundError } from "../common/error";
+import { fetchChannel } from "../discord-info/guild-info";
 
 
 // options for guild node (aka your queue)
 const DEFAULT_NODE_OPTIONS = {
     volume: 2,
-    repeatMode: QueueRepeatMode.AUTOPLAY,
+    repeatMode: QueueRepeatMode.OFF,
 };
 
 /**
@@ -31,13 +33,13 @@ export class DiscordPlayerAction implements Music {
         this.queue = this.player.nodes.get(guild) ??
             this.player.nodes.create(guild, {
                 ...DEFAULT_NODE_OPTIONS,
-                metadata: {channel: interaction.channel},
+                metadata: { channel: interaction.channel },
             });
     }
 
     async play(channel: VoiceBasedChannel, query: string): Promise<Track> {
         const user = (this.interaction.member instanceof GuildMember) ? this.interaction.member.user : undefined;
-        const {track} = await this.player.play(channel, query === "" ? EASTER_EGG.query : query, {
+        const { track } = await this.player.play(channel, query === "" ? EASTER_EGG.query : query, {
             requestedBy: user,
             searchEngine: query.startsWith('http') ? "auto" : "youtube",
         });
@@ -109,4 +111,77 @@ export class DiscordPlayerAction implements Music {
     }
 }
 
+function findQueue(player: Player, guildId: GuildResolvable) {
+    return player.nodes.get(guildId);
+}
 
+function getQueue(player: Player, guildId: GuildResolvable) {
+    const queue = findQueue(player, guildId);
+    if (queue == null) {
+        throw new NotFoundError("No guild for ID found " + guildId);
+    }
+    return queue;
+}
+
+/** Initialize queue with default volume and playback option */
+async function initOrLoad(player: Player, guild: GuildResolvable) {
+    if (player.nodes.get(guild)) {
+        // already initialized
+        return;
+    }
+
+    player.nodes.create(guild, {
+        ...DEFAULT_NODE_OPTIONS,
+        metadata: { channel: undefined },
+    });
+}
+
+export function getCurrentTrack(player: Player, guildId: GuildResolvable) {
+    const queue = getQueue(player, guildId);
+    return queue.currentTrack;
+}
+
+export async function setRecentChannel(player: Player, channel: GuildChannelResolvable) {
+    let resolvedChannel: GuildBasedChannel;
+
+    if (typeof channel === "string") {
+        resolvedChannel = await fetchChannel(player.client, channel);
+    } else {
+        resolvedChannel = channel;
+    }
+
+    const guild = resolvedChannel.guild;
+
+    const queue = getQueue(player, guild);
+    const metadata = queue.metadata as any;
+
+    metadata.channel = resolvedChannel;
+    queue.setMetadata(metadata)
+}
+
+export async function playQuery(
+    player: Player,
+    voiceChannelId: string,
+    query: string,
+    other?: {
+        requestedBy?: any,
+        recentChannel?: GuildChannelResolvable
+    }) {
+    
+    const guild = await (await fetchChannel(player.client, voiceChannelId)).guild;
+    await initOrLoad(player, guild);
+
+    const requestedBy = other?.requestedBy;
+    // For feedback from bot on music events (play/next)
+    const recentChannel = other?.recentChannel;
+    const { track } = await player.play(voiceChannelId, query,
+        {
+            requestedBy: requestedBy,
+            searchEngine: query.startsWith('http') ? "auto" : "youtube",
+        });
+
+    if (!!recentChannel) {
+        await setRecentChannel(player, voiceChannelId);
+    }
+    return track;
+}
