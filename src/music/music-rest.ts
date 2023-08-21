@@ -22,9 +22,12 @@ export default function MusicRouter(player: Player) {
     });
 
     router.get("/:guildId/current", (req, res) => {
+        console.log("/:guildId/current");
+        console.log(req.headers);
         const ctx = new MusicContext(player, req.params.guildId);
         const result: Track | null = ctx.getCurrentSong();
-        res.json(result);
+        res.status(200).json(result);
+        console.log("Responded");
     });
 
     router.get("/:guildId/timestamp", (req, res) => {
@@ -57,7 +60,7 @@ export default function MusicRouter(player: Player) {
 
     router.get("/:guildId/queue", (req, res) => {
         const ctx = new MusicContext(player, req.params.guildId);
-        res.json(ctx.getQueue());
+        res.status(200).json(ctx.getQueue());
     });
 
     return router;
