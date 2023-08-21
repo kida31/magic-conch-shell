@@ -6,6 +6,7 @@ import {
   RESTPostAPIChatInputApplicationCommandsJSONBody,
   RESTPostAPIContextMenuApplicationCommandsJSONBody,
 } from "discord.js";
+import { ExtendedClient } from "../core/extended-client";
 
 export type CommandContext = Interaction<CacheType> | Message<boolean>
 
@@ -21,7 +22,7 @@ export interface Command {
   description?: string;
   category?: CommandCategory;
   data?: Jsonable | Jsonable[];
-  execute(context: CommandContext): Promise<void>;
+  execute(client: ExtendedClient, context: CommandContext): Promise<void>;
 }
 
 /** @deprecated */

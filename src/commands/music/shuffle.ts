@@ -1,10 +1,11 @@
 import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 import {DiscordPlayerAction} from "../../music/discord-player-action";
+import { ExtendedClient } from "../../core/extended-client";
 
 export default class ShuffleCommand implements Command {
     name = "shuffle";
     category: CommandCategory = "Music";
-    async execute(context: CommandContext) {
+    async execute(client: ExtendedClient, context: CommandContext) {
         const music = new DiscordPlayerAction(context);
         await music.shuffleQueue();
         if (isMessage(context)) {

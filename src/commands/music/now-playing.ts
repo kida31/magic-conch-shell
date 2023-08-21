@@ -1,13 +1,14 @@
 import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 import { MusicCommandMessage } from "./messages";
 import {DiscordPlayerAction} from "../../music/discord-player-action";
+import { ExtendedClient } from "../../core/extended-client";
 
 export default class NowPlayingCommand implements Command {
     name = "nowplaying";
     alias = ["np"];
     category: CommandCategory = "Music";
 
-    async execute(context: CommandContext) {
+    async execute(client: ExtendedClient, context: CommandContext) {
         const music = new DiscordPlayerAction(context);
         if (isMessage(context)) {
             const current = (await music.getCurrentSong()) ?? null;

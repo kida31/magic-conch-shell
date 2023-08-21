@@ -54,7 +54,7 @@ export class CommandHandler {
         }
 
         try {
-            await command.execute(interaction);
+            await command.execute(this.client, interaction);
         } catch (error) {
             if (error instanceof Error) {
                 logger.error(error.stack ?? "", error);
@@ -80,7 +80,7 @@ export class CommandHandler {
             const cmd = this.commands.get(name);
             if (cmd) {
                 logger.info(name);
-                await cmd.execute(message);
+                await cmd.execute(this.client, message);
             } else {
                 logger.info("Unknown command: " + name);
                 // Unknown command

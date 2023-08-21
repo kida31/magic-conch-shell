@@ -185,3 +185,8 @@ export async function playQuery(
     }
     return track;
 }
+
+export function pause(player: Player, guildId: string): boolean {
+    const queue = getQueue(player, guildId);
+    return queue.node.pause();
+}

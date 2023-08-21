@@ -8,7 +8,7 @@ export default [
         category?: CommandCategory | undefined = "Settings";
         description?: string | undefined = "Set bot name to new value";
         // data?: Jsonable | Jsonable[] | undefined;
-        async execute(context: CommandContext): Promise<void> {
+        async execute(client: ExtendedClient, context: CommandContext): Promise<void> {
             if (isMessage(context)) {
                 const name = context.content.trim();
                 await context.client.user.setUsername(name);
@@ -24,7 +24,7 @@ export default [
         description: string = "Set bot avatar to image url";
         
         // data?: Jsonable | Jsonable[] | undefined;
-        async execute(context: CommandContext): Promise<void> {
+        async execute(client: ExtendedClient, context: CommandContext): Promise<void> {
             if (isMessage(context)) {
                 const url = context.content.trim();
                 if (url.startsWith("https")) {
@@ -42,7 +42,7 @@ export default [
         description: string = "Make bot forget chat history";
         
         // data?: Jsonable | Jsonable[] | undefined;
-        async execute(context: CommandContext): Promise<void> {
+        async execute(client: ExtendedClient, context: CommandContext): Promise<void> {
             const chatbot = (<ExtendedClient>context.client).chatBot;
             if (chatbot) {
                 for(let i = 0; i < 20; i++) {

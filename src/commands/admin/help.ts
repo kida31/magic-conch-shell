@@ -9,7 +9,7 @@ export default class HelpCommand implements Command {
     description?: string | undefined = "Show available commands and descriptions";
     category?: CommandCategory = "Settings";
     // data?: Jsonable | Jsonable[] | undefined;
-    async execute(context: CommandContext): Promise<void> {
+    async execute(client: ExtendedClient, context: CommandContext): Promise<void> {
         const client = <ExtendedClient>context.client;
 
         const commands: Command[] = getUniqueCommands([...client.commandHandler.commands.values()]);

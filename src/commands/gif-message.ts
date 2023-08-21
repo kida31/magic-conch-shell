@@ -27,7 +27,7 @@ abstract class GifMessageCommand implements Command {
         this.category = "Fun";
     }
 
-    async execute(context: CommandContext): Promise<void> {
+    async execute(client: ExtendedClient, context: CommandContext): Promise<void> {
         const actor = context.member ?? undefined;
         let target: GuildMember | APIInteractionDataResolvedGuildMember | undefined;
 
