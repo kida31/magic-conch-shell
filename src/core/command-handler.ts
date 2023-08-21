@@ -5,7 +5,7 @@ import { LoggerWithLabel } from "../common/logger";
 import PingCommand from "../commands/ping";
 import { ExtendedClient } from "./extended-client";
 
-import {DiscordPlayerAction} from "../music/discord-player-action";
+import { MusicContext } from "../music/music-context";
 
 const logger = LoggerWithLabel("CommandHandler")
 
@@ -88,7 +88,7 @@ export class CommandHandler {
         } else {
             logger.debug(`Ignored ${message.content}`);
 
-            await this.handleChat(message);
+            // await this.handleChat(message);
         }
     }
 
@@ -166,10 +166,10 @@ export class CommandHandler {
             const [cmd, ...rest] = textInBrackets.split(';')
 
             const query = rest.join(" ");
-            const music = new DiscordPlayerAction(message);
+            const music = new MusicContext(this.client.musicPlayer, message.guild!.id);
 
             if (cmd === "play" && message.member?.voice.channel) {
-                await music.play(message.member.voice.channel, query);
+                await music.play(message.member.voice.channel.id, query, message.author, message.channel);
             }
 
             if (cmd === "skip") {

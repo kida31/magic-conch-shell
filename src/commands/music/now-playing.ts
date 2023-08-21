@@ -1,6 +1,6 @@
 import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 import { MusicCommandMessage } from "./messages";
-import {DiscordPlayerAction} from "../../music/discord-player-action";
+import { MusicContext } from "../../music/music-context";
 import { ExtendedClient } from "../../core/extended-client";
 
 export default class NowPlayingCommand implements Command {
@@ -9,10 +9,10 @@ export default class NowPlayingCommand implements Command {
     category: CommandCategory = "Music";
 
     async execute(client: ExtendedClient, context: CommandContext) {
-        const music = new DiscordPlayerAction(context);
+        const music = new MusicContext(client.musicPlayer, context.guild!.id);
         if (isMessage(context)) {
-            const current = (await music.getCurrentSong()) ?? null;
-            const progressBar = (await music.getProgressBar()) ?? undefined;
+            const current = (music.getCurrentSong()) ?? null;
+            const progressBar = (music.getProgressBar()) ?? undefined;
             await context.channel.send(MusicCommandMessage.NOW_PLAYING(current, progressBar));
         }
     }

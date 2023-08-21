@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import bodyparser from "body-parser";
 import { Track, Player, GuildQueue, QueueRepeatMode } from "discord-player";
 import { Client, GuildResolvable } from "discord.js";
-import { getCurrentTrack, playQuery } from "../discord-player-action";
+import { MusicContext } from "../music-context";
 import { Router as InfoRouter } from "../../discord-info/guild-info-rest";
 import { InvalidArgumentException } from "../../common/error";
 import { channel } from "diagnostics_channel";
@@ -15,32 +15,31 @@ function createRouter(player: Player) {
     router.get("/", (req, res) => {
         res.json("This is the homepage")
     });
-    
+
     router.post("/:guildId/next", (req, res) => {
-        const guildId = req.params.guildId;
-        
-        res.json({
-            message: "Ok"
-        })
+        const ctx = new MusicContext(player, req.params.guildId);
+        const nextTrack = ctx.skipSong();
+        res.json(nextTrack);
     });
-    
+
     router.post("/:guidId/prev", (req, res) => {
         res.send("Ok");
     });
-    
+
     router.get("/:guildId/current", (req, res) => {
-        const result = getCurrentTrack(player, req.params.guildId);
+        const ctx = new MusicContext(player, req.params.guildId);
+        const result: Track | null = ctx.getCurrentSong();
         res.json(result);
     });
 
-    router.post("/play", async (req, res) => {
-        console.log("body", req.body);
-        const { url, query, channelId }  = req.body;
+    router.post("/:guildId/play", async (req, res) => {
+        const ctx = new MusicContext(player, req.params.guildId);
+        const { url, query, channelId } = req.body;
         if (!!query) {
-            const track  = await playQuery(player, channelId, query);
+            const track = await ctx.play(channelId, query, "API");
             res.json(track);
         } else {
-            const track  = await playQuery(player, channelId, url);
+            const track = await ctx.play(channelId, url, "API");
             res.json(track);
         }
     })
@@ -66,7 +65,7 @@ export class MusicRestService {
 
     async start() {
         const app = express();
-        
+
         app.use(bodyparser.json());
         this.routes.forEach((router, path) => {
             console.log("Registered " + path);
