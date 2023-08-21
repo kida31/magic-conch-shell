@@ -2,6 +2,7 @@ import { Player } from "discord-player";
 import express, { Router } from "express";
 import { Client } from "discord.js";
 import bodyParser from "body-parser";
+import cors from "cors";
 import MusicRouter from "./music/music-rest";
 import InfoRouter from "./discord-info/guild-info-rest";
 
@@ -23,6 +24,14 @@ export class MusicRestService {
         const app = express();
 
         app.use(bodyParser.json());
+        app.disable('etag');
+        app.use(
+            cors({
+                origin: "http://localhost:3000",
+                methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+            })
+        );
+
         this.routes.forEach((router, path) => {
             console.log("Registered " + path);
             app.use(path, router);
