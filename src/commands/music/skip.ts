@@ -1,5 +1,6 @@
 import { Command, CommandCategory, CommandContext, isMessage } from "../command";
 import {DiscordPlayerAction} from "../../music/discord-player-action";
+import { ExtendedClient } from "../../core/extended-client";
 
 export default class SkipCommand implements Command {
     name = "skip";
