@@ -1,12 +1,15 @@
-import { Player } from "discord-player";
-import express, { Router } from "express";
-import { Client } from "discord.js";
+import {Player} from "discord-player";
+import express, {Router} from "express";
+import {Client} from "discord.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import MusicRouter from "./music/music-rest";
 import InfoRouter from "./discord-info/guild-info-rest";
+import {LoggerWithLabel} from "./common/logger";
 
 const PORT = 8080;
+
+const logger = LoggerWithLabel("REST");
 
 export class MusicRestService {
     routes: Map<string, Router> = new Map();
@@ -33,19 +36,19 @@ export class MusicRestService {
         );
 
         this.routes.forEach((router, path) => {
-            console.log("Registered " + path);
+            logger.notice("Registered " + path);
             app.use(path, router);
         });
         app.use((err: any, req: any, res: any, next: any) => {
-            console.error(err);
+            logger.error("Unhandled error", err);
             res.status(500).json({
-                message: err.message
-            });
+                message: err.name + ':' + err.message,
+            })
         });
 
         // start the Express server
         app.listen(PORT, () => {
-            console.log(`server started at http://localhost:${PORT}`);
+            logger.notice(`server started at http://localhost:${PORT}`);
         });
     }
 }

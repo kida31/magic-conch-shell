@@ -1,7 +1,7 @@
-import { Client } from "discord.js";
+import {Client} from "discord.js";
 import express from "express";
-import { InvalidArgumentException } from "../common/error";
-import { getGuild, getVoiceChannels } from "./guild-info";
+import {InvalidArgumentException} from "../common/error";
+import {getGuild, getVoiceChannels} from "./guild-info";
 
 export default function InfoRouter(client: Client) {
     const router = express.Router();

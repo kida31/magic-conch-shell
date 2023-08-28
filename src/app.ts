@@ -1,24 +1,24 @@
-import { Client, Events, GatewayIntentBits } from "discord.js";
-import { logger as parent } from "./common/logger";
-import { ExtendedClient } from "./core/extended-client";
+import {Events, GatewayIntentBits} from "discord.js";
+import {logger, logger as parent} from "./common/logger";
+import {ExtendedClient} from "./core/extended-client";
 
 import * as dotenv from "dotenv";
-import { DiscordPlayerLogger } from "./core/discord-player-responses";
-import { CommandCollection } from "./commands";
-import { getQuickRegistered } from "./core/command-decorator";
-import { ActivityTemplates } from "./templates/discord-templates";
-import { MusicRestService } from "./rest-service";
+import {DiscordPlayerLogger} from "./core/discord-player-responses";
+import {CommandCollection} from "./commands";
+import {getQuickRegistered} from "./core/command-decorator";
+import {ActivityTemplates} from "./templates/discord-templates";
+import {MusicRestService} from "./rest-service";
 
 
 /** LOGGING */
-const setupLogger = parent.child({ label: "Setup" })
+const setupLogger = parent.child({label: "Setup"})
 
 /** ENVIRONMENT VARIABLES */
 dotenv.config();
 
-const { VERSION } = process.env;
+const {VERSION} = process.env;
 
-const { TOKEN, DEV_TOKEN, DEV_PREFIX } = process.env;
+const {TOKEN, DEV_TOKEN, DEV_PREFIX} = process.env;
 
 const isDevMode = VERSION !== "LIVE";
 if (isDevMode) {
@@ -59,16 +59,26 @@ async function main(): Promise<number> {
 
     // Logging
     {
-        const botLogger = parent.child({ label: "Client" })
-        client.on(Events.ClientReady, (_c) => { botLogger.info(`The bot is online with ${commandHandler.commands.size} commands!`) });
+        const botLogger = parent.child({label: "Client"})
+        client.on(Events.ClientReady, (_c) => {
+            botLogger.info(`The bot is online with ${commandHandler.commands.size} commands!`)
+        });
         client.once(Events.ClientReady, (c) => {
             botLogger.info(`Ready! Logged in as ${c.user.tag}`);
             c.user.setActivity(...ActivityTemplates.Random(`${PREFIX}help`));
         });
-        client.on(Events.Debug, (s) => { botLogger.debug(s) });
-        client.on(Events.Warn, (s) => { botLogger.warning(s) });
-        client.on(Events.Error, (e) => { botLogger.error(e.stack) });
-        client.on(Events.InteractionCreate, (m) => { botLogger.debug(m) });
+        client.on(Events.Debug, (s) => {
+            botLogger.debug(s)
+        });
+        client.on(Events.Warn, (s) => {
+            botLogger.warning(s)
+        });
+        client.on(Events.Error, (e) => {
+            botLogger.error(e.stack)
+        });
+        client.on(Events.InteractionCreate, (m) => {
+            botLogger.debug(m)
+        });
         client.on(Events.PresenceUpdate, (previousStatus, newstatus) => {
             // previousStatus?.status
         })
@@ -85,8 +95,7 @@ async function main(): Promise<number> {
 
     // Login
     if (!noLogin) {
-        console.log("Logging in...")
-        console.log(token);
+        logger.notice("Logging in...");
         client.login(token);
     }
 

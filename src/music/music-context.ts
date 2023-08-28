@@ -1,9 +1,10 @@
-import { GuildQueue, Player, PlayerTimestamp, QueueRepeatMode, Track } from "discord-player";
+import {GuildQueue, Player, PlayerTimestamp, QueueRepeatMode, Track, VoiceUtils} from "discord-player";
 import { Channel, ChannelResolvable, GuildBasedChannel, GuildChannel, GuildChannelResolvable, GuildMember, GuildResolvable, GuildVoiceChannelResolvable, Interaction, Message, User, VoiceBasedChannel, VoiceChannel } from "discord.js";
 import { ChatCompletionResponseMessageRoleEnum } from "openai";
 import { NotFoundError } from "../common/error";
 import { EASTER_EGG } from "./EASTER_EGG";
 import { RepeatMode } from "./types";
+import {fetchChannel} from "../discord-info/guild-info";
 
 
 // options for guild node (aka your queue)
@@ -40,6 +41,13 @@ export class MusicContext {
                 metadata: { channel: textChannel },
             });
         }
+    }
+
+    /** Joins a voice channel */
+    async join(voiceChannelId: string) {
+        const channel = await fetchChannel(this.player.client, voiceChannelId) as VoiceChannel;
+        await new VoiceUtils(this.player).join(channel);
+        return channel;
     }
 
     /** Searches song and adds to queue. Play if nothing is currently playing */
